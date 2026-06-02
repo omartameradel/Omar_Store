@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة المحقق البرمجي 🕵️‍♂️💻</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: radial-gradient(circle at center, #020617 0%, #090d16 100%);
+        }
+        .cyber-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.05);
+        }
+        .code-input {
+            font-family: 'Courier New', Courier, monospace;
+            direction: ltr;
+        }
+    </style>
+</head>
+<body class="text-slate-100 h-screen flex flex-col justify-between p-3 md:p-6">
+
+    <div class="w-full max-w-5xl mx-auto h-full flex flex-col cyber-panel rounded-2xl overflow-hidden">
+        
+        <header class="bg-slate-900/90 px-6 py-4 flex flex-wrap items-center justify-between gap-4 border-b border-indigo-500/10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-indigo-500/10 text-indigo-400 rounded-xl flex items-center justify-center text-xl shadow-md border border-indigo-500/20">
+                    <i class="fa-solid fa-user-secret"></i>
+                </div>
+                <div>
+                    <h1 class="text-md md:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">المحقق البرمجي: اختراق الأبواب</h1>
+                    <p class="text-[11px] text-slate-400">اكتب الأكواد البرمجية لحل القضايا الجنائية الرقمية</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 bg-slate-950/60 px-4 py-2 rounded-xl border border-slate-850">
+                <span class="text-xs text-slate-400">مستوى التقدم:</span>
+                <div class="w-24 md:w-40 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div id="progressBar" class="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 transition-all duration-500" style="width: 33.33%"></div>
+                </div>
+                <span id="levelBadge" class="text-xs font-bold text-cyan-400">المرحلة 1 / 3</span>
+            </div>
+        </header>
+
+        <main class="flex-1 grid grid-cols-1 lg:grid-cols-2 overflow-hidden">
+            
+            <section class="p-6 flex flex-col justify-between overflow-y-auto border-l border-slate-800/50 bg-slate-950/20">
+                <div class="space-y-6">
+                    <div class="bg-indigo-950/20 border border-indigo-500/10 p-4 rounded-xl">
+                        <span class="text-[10px] uppercase font-bold tracking-wider text-indigo-400 block mb-1"><i class="fa-solid fa-folder-open ml-1"></i> ملف القضية النشط</span>
+                        <h3 id="storyTitle" class="text-base font-bold text-slate-200 mb-2">الباب الإلكتروني المغلق</h3>
+                        <p id="storyDesc" class="text-xs text-slate-400 leading-relaxed"></p>
+                    </div>
+
+                    <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl space-y-2">
+                        <span class="text-xs font-bold text-amber-400 flex items-center gap-1"><i class="fa-solid fa-terminal"></i> اللغز والمطلوب:</span>
+                        <p id="objectiveText" class="text-xs text-slate-300 leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-slate-950/80 border border-slate-900 rounded-xl flex flex-col items-center justify-center min-h-[160px] relative overflow-hidden">
+                    <div id="visualStatusIcon" class="text-5xl text-rose-500 mb-2 transition-all duration-300 transform">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <div id="visualStatusText" class="text-xs font-bold text-rose-400 tracking-wide uppercase">نظام الحماية: مُقفل بالكامل</div>
+                    <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(99,102,241,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(99,102,241,0.03)_1px,transparent_1px)] bg-[size:14px_24px] pointer-events-none"></div>
+                </div>
+            </section>
+
+            <section class="p-6 flex flex-col justify-between bg-slate-950/50">
+                <div class="flex-1 flex flex-col">
+                    <div class="flex items-center justify-between bg-slate-900 px-4 py-2 rounded-t-xl border-t border-x border-slate-800">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                        </div>
+                        <span class="text-[11px] text-slate-500 font-mono">script.js</span>
+                    </div>
+                    <textarea id="codeEditor" class="code-input flex-1 w-full bg-slate-950 text-emerald-400 p-4 font-mono text-sm border border-slate-800 rounded-b-xl focus:outline-none focus:border-indigo-500/50 resize-none placeholder-slate-700" placeholder="// اكتب كود الحل الخاص بك هنا..." spellcheck="false"></textarea>
+                </div>
+
+                <div id="feedbackContainer" class="mt-4 p-3 bg-slate-900/40 rounded-xl border border-slate-800 min-h-[60px] flex items-center gap-2">
+                    <div id="feedbackIcon" class="text-slate-500 text-sm"><i class="fa-solid fa-chevron-left"></i></div>
+                    <div id="feedbackText" class="text-xs text-slate-400 font-mono">في انتظار اختبار الكود الخاص بك...</div>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="bg-slate-900/90 p-4 border-t border-slate-800/80 flex items-center justify-between gap-4">
+            <button onclick="resetCurrentLevel()" class="bg-slate-850 hover:bg-slate-800 border border-slate-700 text-slate-300 px-4 py-2.5 rounded-xl transition-all text-xs font-bold flex items-center justify-center gap-2">
+                <i class="fa-solid fa-arrow-rotate-left"></i> إعادة تعيين المرحلة
+            </button>
+            <div class="flex items-center gap-2">
+                <button id="actionBtn" onclick="testCode()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl transition-all text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20">
+                    <i class="fa-solid fa-bolt-lightning"></i> تنفيذ واختبار الكود
+                </button>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        // نظام المراحل مع المحرك الحقيقي للتأكد من المتغيرات والقيم داخل متصفح المستخدم
+        const levels = [
+            {
+                title: "الباب الإلكتروني المشفر",
+                desc: "أنت تقف الآن أمام الباب الإلكتروني المؤدي لغرفة ملفات الشركة المشبوهة، الباب محمي بقفل برمجى ذكي يتأكد من قيمة الصلاحيات الممنوحة.",
+                objective: "قم بتعريف متغير ثابت (constant) باسم ومصطلح دقيق هو: isAccessAllowed واجعل قيمته المنطقية تساوي true تماماً.",
+                initialCode: "// اكتب الكود أدناه لفتح القفل\n",
+                // محرك الفحص الحقيقي: نقوم بتشغيل الكود ورؤية هل المتغير موجود وقيمته true فعلاً؟
+                validate: (code) => {
+                    try {
+                        // استخدام السكوب المحلي لعزل الكود واختباره
+                        const testFn = new Function(code + "; return isAccessAllowed;");
+                        const result = testFn();
+                        // التأكد من أنه استخدم const وليس var عبر فحص النص للتأكيد التعليمي
+                        if(!code.includes('const')) return { success: false, msg: "تنبيه: يرجى استخدام 'const' لتعريف المتغير الثابت كما هو مطلوب!" };
+                        return { success: result === true };
+                    } catch (e) {
+                        return { success: false, msg: e.message };
+                    }
+                },
+                successMsg: "أحسنت أيها المحقق! لقد تم اختراق نظام الصلاحيات بنجاح، الباب الإلكتروني يفتح الآن... اضغط للانتقال للمرحلة القادمة."
+            },
+            {
+                title: "تجاوز فخ جدار الحماية (Firewall)",
+                desc: "ممتاز، لقد دخلت الممر السرّي ولكن تم تفعيل جدار حماية ليزري يغلق الممر بالكامل! لتعطيل أشعة الليزر، يجب عليك دمج سلسلتين نصيتين لإنشاء مفتاح التعطيل المسمى 'DEACTIVATE'.",
+                objective: "قم بإنشاء متغير عادي باستخدام let باسم laserKey يدمج النصين \"DE\" و \"ACTIVATE\" باستخدام علامة الزائد (+).",
+                initialCode: "// قم بدمج النصوص لتعطيل جدار الحماية\n",
+                validate: (code) => {
+                    try {
+                        const testFn = new Function(code + "; return laserKey;");
+                        const result = testFn();
+                        if(!code.includes('let')) return { success: false, msg: "تنبيه: يرجى استخدام كلمة 'let' لتعريف المتغير العادي!" };
+                        if(!code.includes('+')) return { success: false, msg: "تنبيه: يجب استخدام عامل الربط (+) لدمج النصوص!" };
+                        return { success: result === "DEACTIVATE" };
+                    } catch (e) {
+                        return { success: false, msg: e.message };
+                    }
+                },
+                successMsg: "عمل رائع! انطفأت أشعة الليزر فوراً واختفى الخطر من الممر. تحرك بسرعة!"
+            },
+            {
+                title: "فك تشفير الخادم المركزي (The Server)",
+                desc: "هذا هو حاسوب الشركة المركزي! البيانات مشفرة داخل مصفوفة (Array) تحتوي على أدلة الجريمة، ومهمتك الأخيرة هي معرفة عدد هذه الأدلة المخزنة لنسخها بالكامل.",
+                objective: "لديك مصفوفة جاهزة باسم evidence. قم بمعرفة حجمها وطولها عبر ميزة البرمجة .length وقم بحفظ النتيجة داخل متغير let باسم totalEvidence.",
+                initialCode: "const evidence = [\"ملف_مفبرك\", \"اختلاس\", \"رشاوي\"];\n// اكتب كود حساب حجم المصفوفة بالأسفل\n",
+                validate: (code) => {
+                    try {
+                        const testFn = new Function(code + "; return totalEvidence;");
+                        const result = testFn();
+                        if(!code.includes('.length')) return { success: false, msg: "تنبيه: يجب استخدام خاصية '.length' لقراءة حجم المصفوفة دلالياً." };
+                        return { success: result === 3 };
+                    } catch (e) {
+                        return { success: false, msg: e.message };
+                    }
+                },
+                successMsg: "يا لك من عبقري! تم تحميل كافة الأدلة (3 أدلة إدانة كاملة)، وأغلقت القضية بنجاح لصالحك! لقد فزت في اللعبة 🏆🎉!"
+            }
+        ];
+
+        let currentLevelIndex = 0;
+        let isLevelCompleted = false;
+
+        const codeEditor = document.getElementById("codeEditor");
+        const storyTitle = document.getElementById("storyTitle");
+        const storyDesc = document.getElementById("storyDesc");
+        const objectiveText = document.getElementById("objectiveText");
+        const progressBar = document.getElementById("progressBar");
+        const levelBadge = document.getElementById("levelBadge");
+        const feedbackText = document.getElementById("feedbackText");
+        const feedbackIcon = document.getElementById("feedbackIcon");
+        const feedbackContainer = document.getElementById("feedbackContainer");
+        const visualStatusIcon = document.getElementById("visualStatusIcon");
+        const visualStatusText = document.getElementById("visualStatusText");
+        const actionBtn = document.getElementById("actionBtn");
+
+        function loadLevel() {
+            const lvl = levels[currentLevelIndex];
+            storyTitle.textContent = lvl.title;
+            storyDesc.textContent = lvl.desc;
+            objectiveText.innerHTML = lvl.objective;
+            codeEditor.value = lvl.initialCode;
+            
+            levelBadge.textContent = `المرحلة ${currentLevelIndex + 1} / ${levels.length}`;
+            progressBar.style.width = `${((currentLevelIndex + 1) / levels.length) * 100}%`;
+            
+            isLevelCompleted = false;
+            feedbackText.textContent = "في انتظار اختبار الكود الخاص بك...";
+            feedbackText.className = "text-xs text-slate-400 font-mono";
+            feedbackIcon.innerHTML = `<i class="fa-solid fa-chevron-left"></i>`;
+            feedbackIcon.className = "text-slate-500 text-sm";
+            feedbackContainer.className = "mt-4 p-3 bg-slate-900/40 rounded-xl border border-slate-800 min-h-[60px] flex items-center gap-2";
+            
+            visualStatusIcon.innerHTML = currentLevelIndex === 1 ? `<i class="fa-solid fa-burst"></i>` : (currentLevelIndex === 2 ? `<i class="fa-solid fa-server"></i>` : `<i class="fa-solid fa-lock"></i>`);
+            visualStatusIcon.className = "text-5xl text-rose-500 mb-2 transition-all duration-300 transform";
+            visualStatusText.textContent = currentLevelIndex === 1 ? "حالة الممر: خطر (ليزر نشط)" : (currentLevelIndex === 2 ? "حالة السيرفر: مشفر ومغلق" : "نظام الحماية: مُقفل بالكامل");
+            visualStatusText.className = "text-xs font-bold text-rose-400 tracking-wide";
+            
+            actionBtn.innerHTML = `<i class="fa-solid fa-bolt-lightning"></i> تنفيذ واختبار الكود`;
+            actionBtn.className = "bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl transition-all text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20";
+        }
+
+        function testCode() {
+            if (isLevelCompleted) {
+                goToNextLevel();
+                return;
+            }
+
+            const userCode = codeEditor.value;
+            const currentLvl = levels[currentLevelIndex];
+
+            // تشغيل كود المستخدم داخل محرك الفحص الآمن والذكي
+            const result = currentLvl.validate(userCode);
+
+            if (result.success) {
+                isLevelCompleted = true;
+                
+                feedbackText.textContent = currentLvl.successMsg;
+                feedbackText.className = "text-xs text-emerald-400 font-bold font-mono";
+                feedbackIcon.innerHTML = `<i class="fa-solid fa-circle-check animate-bounce"></i>`;
+                feedbackIcon.className = "text-emerald-500 text-md";
+                feedbackContainer.className = "mt-4 p-3 bg-emerald-950/20 rounded-xl border border-emerald-500/20 min-h-[60px] flex items-center gap-2";
+                
+                visualStatusIcon.className = "text-5xl text-emerald-400 mb-2 transition-all duration-500 scale-110 rotate-6";
+                visualStatusIcon.innerHTML = currentLevelIndex === 2 ? `<i class="fa-solid fa-trophy text-amber-400"></i>` : `<i class="fa-solid fa-lock-open"></i>`;
+                visualStatusText.textContent = currentLevelIndex === 2 ? "تم حل القضية بالكامل!" : "تم الاختراق: النظام آمن وجاهز للعبور";
+                visualStatusText.className = "text-xs font-bold text-emerald-400 tracking-wide";
+
+                if (currentLevelIndex === levels.length - 1) {
+                    actionBtn.innerHTML = `<i class="fa-solid fa-crown text-amber-300"></i> مبروك الفوز بالنهاية!`;
+                    actionBtn.className = "bg-emerald-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg cursor-not-allowed";
+                } else {
+                    actionBtn.innerHTML = `الانتقال للمرحلة التالية <i class="fa-solid fa-arrow-left"></i>`;
+                    actionBtn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl transition-all text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 animate-pulse";
+                }
+            } else {
+                // إظهار رسالة الخطأ الحقيقية القادمة من محرك التشغيل أو الملاحظة التعليمية
+                const errorMsg = result.msg ? result.msg : "خطأ برمي: لم تقم بتنفيذ المطلوب البرمجي بالشكل الصحيح.";
+                feedbackText.innerHTML = `⚠️ <b>خطأ في التشغيل:</b> ${errorMsg}`;
+                feedbackText.className = "text-xs text-rose-400 font-mono";
+                feedbackIcon.innerHTML = `<i class="fa-solid fa-triangle-exclamation animate-pulse"></i>`;
+                feedbackIcon.className = "text-rose-500 text-md";
+                feedbackContainer.className = "mt-4 p-3 bg-rose-950/20 rounded-xl border border-rose-500/20 min-h-[60px] flex items-center gap-2";
+                
+                visualStatusIcon.classList.add("translate-x-1");
+                setTimeout(() => visualStatusIcon.classList.remove("translate-x-1"), 150);
+            }
+        }
+
+        function goToNextLevel() {
+            if (currentLevelIndex < levels.length - 1) {
+                currentLevelIndex++;
+                loadLevel();
+            }
+        }
+
+        function resetCurrentLevel() {
+            loadLevel();
+        }
+
+        loadLevel();
+    </script>
+</body>
+</html>
