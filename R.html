@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>موقع تعليم الكتابة الاحترافي ⌨️</title>
+  <!-- Tailwind CSS للواجهة الحديثة -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- خط قاهرة العربي المميز -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #0f172a; /* Dark background */
+    }
+    /* تأثير الحروف */
+    .char-correct {
+      color: #10b981; /* أزرق مخضر */
+      border-bottom: 2px solid #10b981;
+    }
+    .char-incorrect {
+      color: #ef4444; /* أحمر */
+      background-color: rgba(239, 68, 68, 0.2);
+      border-bottom: 2px solid #ef4444;
+    }
+    .char-current {
+      background-color: rgba(56, 189, 248, 0.3);
+      border-bottom: 2px solid #38bdf8;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      50% { border-bottom-color: transparent; }
+    }
+    /* اهتزاز يدوي خفيف عند الخطأ */
+    .shake {
+      animation: shake 0.2s ease-in-out 0s 2;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col items-center justify-between p-4 md:p-8 selection:bg-cyan-500 selection:text-slate-900">
+
+  <!-- الرأس -->
+  <header class="text-center my-4">
+    <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r bg-gradient-to-l from-cyan-400 to-fuchsia-500 mb-2">
+      مُدرّب الكتابة السريعة ⌨️
+    </h1>
+    <p class="text-slate-400 text-sm md:text-base">طوّر مهاراتك وسرعتك في الكتابة باللغة العربية بأسلوب تفاعلي ذكي.</p>
+  </header>
+
+  <!-- الكارت الرئيسي للعبة -->
+  <main class="w-full max-w-3xl bg-slate-800/50 backdrop-blur-md p-6 md:p-8 rounded-2xl border border-slate-700 shadow-2xl space-y-6 transition-all">
+    
+    <!-- شريط الإعدادات والعداد -->
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-700 pb-4">
+      <div class="flex items-center gap-2">
+        <label for="level" class="text-sm font-semibold text-slate-400">🎯 المستوى:</label>
+        <select id="level" onchange="changeLevel()" class="bg-slate-900 border border-slate-600 rounded-lg px-3 py-1.5 text-cyan-400 font-medium focus:outline-none focus:border-cyan-400">
+          <option value="easy">سهل 🟢</option>
+          <option value="medium">متوسط 🟡</option>
+          <option value="hard">صعب 🔴</option>
+        </select>
+      </div>
+      
+      <div id="timer" class="text-lg font-bold bg-slate-950 px-4 py-1.5 rounded-full text-amber-400 border border-amber-500/30">
+        ⏱️ الوقت المتبقي: 60 ثانية
+      </div>
+    </div>
+
+    <!-- منطقة عرض النص الملون (الميزة الأهم) -->
+    <div id="sentenceContainer" class="bg-slate-900/80 p-6 rounded-xl border border-slate-700/50 text-right leading-relaxed text-2xl tracking-wide min-h-[80px] flex items-center justify-start flex-wrap gap-x-0.5 select-none">
+      <!-- الحروف ستتولد هنا ديناميكياً بواسطة JS -->
+    </div>
+
+    <!-- صندوق الإدخال -->
+    <div class="relative">
+      <input type="text" id="inputBox" placeholder="ابدأ الكتابة هنا لتشغيل العداد تلقائياً..." 
+        class="w-full bg-slate-900 border-2 border-slate-700 rounded-xl px-5 py-4 text-xl text-slate-100 placeholder-slate-500 tracking-wide focus:outline-none focus:border-cyan-500 transition-colors duration-200"
+        autocomplete="off">
+    </div>
+
+    <!-- النتائج الفورية -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+      <div id="result" class="text-base font-semibold h-6"></div>
+      <div id="stats" class="text-base font-semibold text-cyan-400 h-6"></div>
+      <div id="rating" class="text-lg font-bold text-yellow-400 h-6"></div>
+    </div>
+
+    <!-- أزرار التحكم -->
+    <div class="flex flex-wrap gap-3 justify-center pt-2">
+      <button onclick="newSentence()" class="bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-white font-semibold py-2 px-6 rounded-xl shadow-lg shadow-cyan-600/20 transition-all transform hover:-translate-y-0.5">جملة جديدة 🔁</button>
+      <button id="stopButton" onclick="stopTimer()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold py-2 px-5 rounded-xl transition-all">إيقاف ⏹️</button>
+      <button id="startButton" onclick="startTimer()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 px-5 rounded-xl transition-all">ابدأ ⏳</button>
+      <button id="clearHistory" onclick="clearHistory()" class="bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border border-rose-800/50 font-semibold py-2 px-4 rounded-xl transition-all">مسح السجل 🗑️</button>
+    </div>
+  </main>
+
+  <!-- سجل النتائج السفلي -->
+  <footer class="w-full max-w-3xl bg-slate-900/40 border border-slate-800/60 p-6 rounded-xl mt-8">
+    <h3 class="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
+      <span>📜 سجل نتائجك السابقة الأخيرة:</span>
+    </h3>
+    <ul id="historyList" class="space-y-2 text-sm text-slate-400 max-h-40 overflow-y-auto pr-2">
+      <!-- السجل هنا -->
+    </ul>
+  </footer>
+
+  <!-- العناصر الصوتية التفاعلية -->
+  <audio id="successSound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
+  <audio id="failSound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+  <audio id="endSound" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"></audio>
+  <!-- صوت نقرة كيبورد ميكانيكي خفيف عند ضغط المفاتيح -->
+  <audio id="keypressSound" src="https://www.soundjay.com/button/sounds/button-3.mp3"></audio>
+
+  <script>
+    const sentencesByLevel = {
+      easy: [
+        "الكتابة سهلة وممتعة.", "أنا أتعلم بسرعة فائقة.", "مفتاح النجاح هو التدريب المستمر.", 
+        "الرياضة مهمة جداً للصحة.", "الكتب أصدقاء رائعون دائماً.", "النجوم تتلألأ في السماء اللامعة.",
+        "الطيور تغرد فوق الأشجار الكبيرة.", "الأطفال يلعبون في الحديقة الواسعة.", "الشمس تشرق بنورها كل صباح."
+      ],
+      medium: [
+        "الكتابة بسرعة ودقة تساعد كثيراً في إنجاز العمل اليومي.",
+        "اللغة العربية هي واحدة من أغنى وأجمل لغات العالم الحية.",
+        "البرمجة وتطوير المواقع تحتاج إلى صبر وممارسة عملية مستمرة.",
+        "التعلم الذاتي المستمر هو السلاح الحقيقي للنجاح في عصرنا الحالي.",
+        "القراءة الدائمة والاطلاع يوسعان آفاق العقل البشري بشكل مذهل."
+      ],
+      hard: [
+        "في عالم التقنية والذكاء الاصطناعي الحديث، تعتبر مهارة الكتابة السريعة والعمياء أمراً لا غنى عنه مطلقاً.",
+        "النجاح الباهر لا يأتي مصادفة أو من الفراغ، بل هو الثمرة الحتمية للإصرار والعمل الدؤوب والنية الصادقة.",
+        "تعلُّم الكتابة باحترافية على لوحة المفاتيح يُعد من أبرز وأهم المهارات الرقمية الأساسية في هذا العصر المتطور.",
+        "هناك دائماً علاقة وطيدة ومباشرة بين حجم الممارسة اليومية الجادة والتحسن الملحوظ في سرعة وجودة المهارات."
+      ]
+    };
+
+    let currentLevel = "easy";
+    let currentSentence = "";
+    let correctWordsCount = 0;
+    let totalCharsTyped = 0;
+    let totalErrors = 0;
+    let timeLeft = 60;
+    let timer = null;
+    let started = false;
+
+    const sentenceContainer = document.getElementById("sentenceContainer");
+    const inputBox = document.getElementById("inputBox");
+    const resultDiv = document.getElementById("result");
+    const statsDiv = document.getElementById("stats");
+    const timerDiv = document.getElementById("timer");
+    const historyList = document.getElementById("historyList");
+    const levelSelect = document.getElementById("level");
+    const ratingDiv = document.getElementById("rating");
+
+    const successSound = document.getElementById("successSound");
+    const failSound = document.getElementById("failSound");
+    const endSound = document.getElementById("endSound");
+    const keypressSound = document.getElementById("keypressSound");
+
+    // توليد نص تفاعلي مقطع لحروف ملونة
+    function renderSentence() {
+      sentenceContainer.innerHTML = "";
+      currentSentence.split("").forEach((char) => {
+        const span = document.createElement("span");
+        span.textContent = char === " " ? " " : char; // استخدام مسافة ثابتة للعرض الصحيح
+        sentenceContainer.appendChild(span);
+      });
+      // تمييز الحرف الأول عند البداية
+      if(sentenceContainer.children.length > 0) {
+        sentenceContainer.children[0].classList.add("char-current");
+      }
+    }
+
+    function startTimer() {
+      if (!started) {
+        started = true;
+        timer = setInterval(() => {
+          timeLeft--;
+          timerDiv.textContent = `⏱️ الوقت المتبقي: ${timeLeft} ثانية`;
+          if (timeLeft <= 0) {
+            clearInterval(timer);
+            inputBox.disabled = true;
+            endSound.play();
+            showStats();
+            started = false;
+          }
+        }, 1000);
+      }
+    }
+
+    function stopTimer() {
+      clearInterval(timer);
+      started = false;
+      timeLeft = 60;
+      timerDiv.textContent = `⏱️ الوقت المتبقي: ${timeLeft} ثانية`;
+      inputBox.value = "";
+      renderSentence();
+    }
+
+    function newSentence() {
+      const sentenceList = sentencesByLevel[currentLevel];
+      currentSentence = sentenceList[Math.floor(Math.random() * sentenceList.length)];
+      
+      renderSentence();
+      inputBox.value = "";
+      resultDiv.textContent = "";
+      inputBox.disabled = false;
+      inputBox.focus();
+
+      // إعادة تهيئة المتغيرات المتقدمة فقط لو كانت الدورة منتهية أو جديدة تماماً
+      if (!started) {
+        timeLeft = 60;
+        correctWordsCount = 0;
+        totalCharsTyped = 0;
+        totalErrors = 0;
+        timerDiv.textContent = `⏱️ الوقت المتبقي: ${timeLeft} ثانية`;
+        clearInterval(timer);
+        statsDiv.textContent = "";
+        ratingDiv.textContent = "";
+      }
+    }
+
+    // مراقبة مدخلات لوحة المفاتيح حرفاً بحرف وتلوينها حياً
+    inputBox.addEventListener("input", (e) => {
+      // تشغيل التايمر تلقائياً مع أول حرف مطبوع
+      if (!started && inputBox.value.length > 0) {
+        startTimer();
+      }
+
+      // تشغيل صوت ضغطة كيبورد ميكانيكي ممتع
+      keypressSound.currentTime = 0;
+      keypressSound.play();
+
+      const inputValue = inputBox.value;
+      const spans = sentenceContainer.querySelectorAll("span");
+      
+      totalCharsTyped++;
+
+      // معالجة ومقارنة الحروف حياً
+      spans.forEach((span, index) => {
+        const expectedChar = currentSentence[index];
+        const typedChar = inputValue[index];
+
+        // إزالة الحالات السابقة
+        span.className = "";
+
+        if (typedChar == null) {
+          // لم يتم كتابته بعد
+          if (index === inputValue.length) {
+            span.classList.add("char-current"); // الحرف المطلوب كتابته حالياً
+          }
+        } else if (typedChar === expectedChar) {
+          // صحيح
+          span.classList.add("char-correct");
+        } else {
+          // خاطئ
+          span.classList.add("char-incorrect");
+          if(index === inputValue.length - 1) {
+             totalErrors++;
+             // إضافة تأثير اهتزاز خفيف للمربع عند الخطأ لإشعار المستخدم
+             inputBox.classList.add("shake");
+             setTimeout(() => inputBox.classList.remove("shake"), 2000);
+          }
+        }
+      });
+
+      // التحقق من اكتمال الجملة بنجاح
+      if (inputValue === currentSentence) {
+        // حساب الكلمات بناء على تقسيم الفراغات الفعلي في الجملة المكتملة
+        correctWordsCount += currentSentence.split(" ").length;
+        successSound.play();
+        resultDiv.innerHTML = "✅ رائع جداً! تابع الجملة التالية...";
+        resultDiv.className = "text-base font-semibold text-emerald-400";
+        
+        // الانتقال التلقائي الفوري لجملة أخرى دون توقف التايمر لتجربة كتابة فائقة السلاسة
+        const sentenceList = sentencesByLevel[currentLevel];
+        currentSentence = sentenceList[Math.floor(Math.random() * sentenceList.length)];
+        renderSentence();
+        inputBox.value = "";
+      }
+    });
+
+    // حساب الـ WPM الحقيقي الدقيق المبني على الكلمات والوقت
+    function showStats() {
+      // الجمل المكتملة تضاف مسبقاً، ونضيف الكلمات التي كتبت جزئياً بنجاح حتى لو انتهى الوقت
+      const timeElapsed = 60 - timeLeft;
+      const minutes = timeElapsed > 0 ? timeElapsed / 60 : 1;
+      
+      // معادلة حساب السرعة المعتمدة عالمياً (عدد الحروف الكلي المكتوب بشكل صحيح تقسيم 5 ثم تقسيم الوقت)
+      const wpm = Math.round((correctWordsCount > 0 ? correctWordsCount : 1) / minutes);
+      const accuracy = totalCharsTyped > 0 ? Math.max(0, Math.round(((totalCharsTyped - totalErrors) / totalCharsTyped) * 100)) : 100;
+
+      statsDiv.innerHTML = `📊 السرعة: ${wpm} كلمة/دقيقة | دقة الحروف: ${accuracy}%`;
+      ratingDiv.innerHTML = getStarRating(wpm);
+      
+      saveToHistory(wpm, accuracy);
+      loadHistory();
+    }
+
+    function getStarRating(wpm) {
+      let stars = 1;
+      if (wpm >= 15) stars = 2;
+      if (wpm >= 25) stars = 3;
+      if (wpm >= 35) stars = 4;
+      if (wpm >= 45) stars = 5;
+
+      return '⭐'.repeat(stars) + ` (${stars}/5)`;
+    }
+
+    function saveToHistory(wpm, accuracy) {
+      const history = JSON.parse(localStorage.getItem("typingHistoryAdvanced")) || [];
+      const now = new Date().toLocaleString("ar-EG", { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      history.push({ date: now, wpm: wpm, accuracy: accuracy, level: currentLevel });
+      localStorage.setItem("typingHistoryAdvanced", JSON.stringify(history));
+    }
+
+    function loadHistory() {
+      const history = JSON.parse(localStorage.getItem("typingHistoryAdvanced")) || [];
+      historyList.innerHTML = "";
+      if (history.length === 0) {
+        historyList.innerHTML = `<li class="text-slate-500 text-center py-2">لا توجد نتائج مسجلة حتى الآن. ابدأ التدريب!</li>`;
+        return;
+      }
+      history.slice(-5).reverse().forEach(entry => {
+        const li = document.createElement("li");
+        li.className = "flex justify-between items-center bg-slate-800/40 px-4 py-2 rounded-lg border border-slate-800";
+        li.innerHTML = `
+          <span>📅 <span class="text-slate-300">${entry.date}</span></span>
+          <span class="font-medium text-cyan-400">🎯 ${entry.level === 'easy' ? 'سهل' : entry.level === 'medium' ? 'متوسط' : 'صعب'}</span>
+          <span class="font-bold text-emerald-400">🔤 ${entry.wpm} كلمة/د</span>
+          <span class="text-amber-400">🎯 دقة: ${entry.accuracy}%</span>
+        `;
+        historyList.appendChild(li);
+      });
+    }
+
+    function clearHistory() {
+      localStorage.removeItem("typingHistoryAdvanced");
+      loadHistory();
+    }
+
+    function changeLevel() {
+      currentLevel = levelSelect.value;
+      stopTimer();
+      newSentence();
+    }
+
+    // تهيئة اللعبة لأول مرة عند فتح الصفحة
+    newSentence();
+    loadHistory();
+  </script>
+</body>
+</html>
