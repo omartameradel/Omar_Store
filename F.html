@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مستخرج النصوص الذكي الاحترافي (OCR) 📄</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2=family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between p-4 md:p-8 selection:bg-indigo-500 selection:text-white">
+
+  <header class="text-center max-w-2xl mx-auto my-4 space-y-2">
+    <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
+      مستخرج النصوص الضوئي الذكي 📄
+    </h1>
+    <p class="text-slate-400 text-sm md:text-base">ارفع صورك واستخرج منها النصوص العربية والإنجليزية بدقة فائقة وبثوانٍ معدودة.</p>
+  </header>
+
+  <main class="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 items-start my-auto">
+    
+    <div class="glass-card p-6 rounded-2xl shadow-2xl space-y-4">
+      <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">
+        <i class="fa-solid fa-file-import text-indigo-400"></i> 1. تجهيز الصورة واللغة
+      </h2>
+      
+      <div class="space-y-2">
+        <label class="block text-xs font-semibold text-slate-400">اختر لغة النص الموجود في الصورة:</label>
+        <select id="languageSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-indigo-400 focus:outline-none focus:border-indigo-500">
+          <option value="ara">اللغة العربية فقط 🇸🇦</option>
+          <option value="eng" selected>اللغة الإنجليزية فقط 🇬🇧</option>
+          <option value="ara+eng">المزيج (العربية والإنجليزية معاً) 🌍</option>
+        </select>
+      </div>
+
+      <div id="dropZone" class="border-2 border-dashed border-slate-700 hover:border-indigo-500 bg-slate-900/40 rounded-xl p-8 text-center cursor-pointer transition-all relative group">
+        <input type="file" id="fileInput" accept="image/*" class="hidden">
+        
+        <div id="dropZonePrompt" class="space-y-3">
+          <div class="text-4xl text-slate-500 group-hover:text-indigo-400 transition-colors">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+          </div>
+          <p class="text-sm font-medium text-slate-300">اسحب الصورة وأفلتها هنا، أو <span class="text-indigo-400 group-hover:underline">تصفح الملفات</span></p>
+          <p class="text-xs text-slate-500">يدعم صيغ PNG, JPG, WEBP ولصق الصور المباشر لحرية أكبر</p>
+        </div>
+
+        <div id="imagePreviewContainer" class="hidden space-y-2">
+          <img id="imagePreview" class="max-h-48 mx-auto rounded-lg shadow-md border border-slate-700 object-contain">
+          <button onclick="removeImage(event)" class="text-xs text-rose-400 hover:text-rose-300 font-semibold"><i class="fa-solid fa-trash-can ml-1"></i> إزالة وتغيير الصورة</button>
+        </div>
+      </div>
+
+      <button id="extractBtn" onclick="startOCR()" disabled class="w-full bg-slate-800 text-slate-500 font-bold py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2 cursor-not-allowed">
+        بدء استخراج النصوص <i class="fa-solid fa-wand-magic-sparkles"></i>
+      </button>
+
+      <div id="progressContainer" class="hidden space-y-1.5">
+        <div class="flex justify-between text-xs font-semibold">
+          <span id="progressStatus" class="text-indigo-400">جاري المعالجة...</span>
+          <span id="progressPercentage" class="text-slate-400">0%</span>
+        </div>
+        <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
+          <div id="progressBar" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full w-0 transition-all duration-150"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="glass-card p-6 rounded-2xl shadow-2xl space-y-4 flex flex-col justify-between h-full">
+      <div class="space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-700/50 pb-2">
+          <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">
+            <i class="fa-solid fa-square-poll-horizontal text-emerald-400"></i> 2. النص المستخرج الجاهز
+          </h2>
+          <span id="wordCountBadge" class="text-xs bg-slate-900 px-2 py-1 rounded-md text-slate-400 font-mono hidden">الكلمات: 0</span>
+        </div>
+
+        <div class="relative bg-slate-900/60 border border-slate-700 rounded-xl p-2">
+          <textarea id="outputTextArea" rows="10" class="w-full bg-transparent text-slate-200 p-2 text-sm leading-relaxed focus:outline-none placeholder-slate-600 resize-none" placeholder="النص المستخرج سيظهر هنا، وستتمكن من تعديله أو صياغته بحرية تامة..."></textarea>
+        </div>
+      </div>
+
+      <div id="actionButtons" class="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 opacity-50 pointer-events-none transition-opacity duration-300">
+        <button onclick="copyText()" class="bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/20 py-2 rounded-xl text-xs font-bold transition-all justify-center">
+          <i class="fa-solid fa-copy ml-1"></i> نسخ النص
+        </button>
+        <button onclick="downloadText()" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/20 py-2 rounded-xl text-xs font-bold transition-all justify-center">
+          <i class="fa-solid fa-file-arrow-down ml-1"></i> حفظ كملف
+        </button>
+        <button onclick="speakText()" class="bg-amber-600/20 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-500/20 py-2 rounded-xl text-xs font-bold transition-all justify-center">
+          <i class="fa-solid fa-volume-high ml-1"></i> نطق النص
+        </button>
+        <button onclick="clearAll()" class="bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/20 py-2 rounded-xl text-xs font-bold transition-all justify-center">
+          <i class="fa-solid fa-rotate-left ml-1"></i> تفريغ
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="text-center text-xs text-slate-600 my-4">&copy; المطور: عمر تامر محمد عادل</footer>
+
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const dropZonePrompt = document.getElementById('dropZonePrompt');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const extractBtn = document.getElementById('extractBtn');
+    const outputTextArea = document.getElementById('outputTextArea');
+    const actionButtons = document.getElementById('actionButtons');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressStatus = document.getElementById('progressStatus');
+    const progressPercentage = document.getElementById('progressPercentage');
+    const wordCountBadge = document.getElementById('wordCountBadge');
+    const languageSelect = document.getElementById('languageSelect');
+
+    let targetImageSrc = null;
+
+    // تفعيل اختيار الملفات عند النقر على المربع
+    dropZone.addEventListener('click', () => {
+      if(!targetImageSrc) fileInput.click();
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      handleFiles(e.target.files);
+    });
+
+    // معالجة السحب والإفلات
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('border-indigo-500', 'bg-indigo-950/20');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('border-indigo-500', 'bg-indigo-950/20');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-indigo-500', 'bg-indigo-950/20');
+      handleFiles(e.dataTransfer.files);
+    });
+
+    // ميزة متقدمة جداً: معالجة اللصق المباشر من الحافظة (Ctrl + V)
+    document.addEventListener('paste', (e) => {
+      const items = e.clipboardData.items;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const blob = items[i].getAsFile();
+          const fileList = [blob];
+          handleFiles(fileList);
+        }
+      }
+    });
+
+    function handleFiles(files) {
+      if (files.length === 0) return;
+      const file = files[0];
+      
+      if (!file.type.startsWith('image/')) {
+        alert('يرجى رفع ملف صورة صالح فقط.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        targetImageSrc = e.target.result;
+        imagePreview.src = targetImageSrc;
+        
+        // تبديل عناصر الواجهة للمعاينة
+        dropZonePrompt.classList.add('hidden');
+        imagePreviewContainer.classList.remove('hidden');
+        
+        // تفعيل زر الاستخراج وتغيير مظهره للجاهزية
+        extractBtn.disabled = false;
+        extractBtn.className = "w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3 rounded-xl text-sm shadow-lg shadow-indigo-600/20 transition-all transform hover:-translate-y-0.5 cursor-pointer";
+      }
+      reader.readAsDataURL(file);
+    }
+
+    function removeImage(event) {
+      event.stopPropagation(); // منع فتح نافذة الملفات عند الحذف
+      targetImageSrc = null;
+      fileInput.value = "";
+      dropZonePrompt.classList.remove('hidden');
+      imagePreviewContainer.classList.add('hidden');
+      
+      extractBtn.disabled = true;
+      extractBtn.className = "w-full bg-slate-800 text-slate-500 font-bold py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2 cursor-not-allowed";
+      progressContainer.classList.add('hidden');
+    }
+
+    // تشغيل المحرك الحقيقي للـ OCR بواسطة Tesseract.js
+    async function startOCR() {
+      if (!targetImageSrc) return;
+
+      outputTextArea.value = "جاري تهيئة محرك الذكاء الاصطناعي وبدء القراءة الضوئية الحية للحروف...";
+      progressContainer.classList.remove('hidden');
+      extractBtn.disabled = true;
+      actionButtons.classList.add('opacity-50', 'pointer-events-none');
+
+      const selectedLang = languageSelect.value;
+
+      try {
+        // استدعاء دالة التعرف المباشر من Tesseract وبث التحديثات فورياً لشريط التقدم
+        const result = await Tesseract.recognize(
+          targetImageSrc,
+          selectedLang,
+          {
+            logger: m => {
+              if(m.status === 'recognizing text') {
+                progressStatus.textContent = "جاري قراءة الحروف والرموز...";
+                const pct = Math.round(m.progress * 100);
+                progressBar.style.width = pct + '%';
+                progressPercentage.textContent = pct + '%';
+              } else {
+                progressStatus.textContent = "جاري تحميل الحزم اللغوية وسيرفر المعالجة...";
+              }
+            }
+          }
+        );
+
+        // طباعة النتيجة النهائية
+        const text = result.data.text;
+        outputTextArea.value = text.trim() ? text : "❌ لم يتم العثور على نصوص واضحة في الصورة، يرجى التأكد من اختيار اللغة المناسبة وجودة إضاءة الكلمات.";
+        
+        // تحديث عدد الكلمات المستخرجة
+        if(text.trim()) {
+          const words = text.trim().split(/\s+/).length;
+          wordCountBadge.textContent = `الكلمات: ${words}`;
+          wordCountBadge.classList.remove('hidden');
+          
+          // تفعيل لوحة التحكم بالنص
+          actionButtons.classList.remove('opacity-50', 'pointer-events-none');
+        }
+
+        progressStatus.textContent = "✅ تم الاستخراج بنجاح!";
+        progressBar.style.width = '100%';
+        progressPercentage.textContent = '100%';
+
+      } catch (error) {
+        console.error(error);
+        outputTextArea.value = "🔴 حدث خطأ أثناء معالجة الصورة، يرجى التحقق من اتصال الإنترنت وإعادة المحاولة.";
+        progressStatus.textContent = "فشلت العملية";
+      } finally {
+        extractBtn.disabled = false;
+      }
+    }
+
+    // دوال الأزرار المضافة والتحكم بالنص المستخرج
+    function copyText() {
+      if (!outputTextArea.value) return;
+      navigator.clipboard.writeText(outputTextArea.value);
+      alert("✅ تم نسخ النص المستخرج بالكامل إلى الحافظة!");
+    }
+
+    function downloadText() {
+      const text = outputTextArea.value;
+      if (!text) return;
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `مستخرج_النصوص_عمر_تامر_${Date.now()}.txt`;
+      link.click();
+    }
+
+    function speakText() {
+      const text = outputTextArea.value;
+      if (!text) return;
+      
+      // إلغاء أي قراءة صوتية حالية لعدم تداخل الأصوات
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      // محاولة الكشف التلقائي المناسب للصوت بناءً على اختيار اللغة
+      if (languageSelect.value.includes('ara')) {
+        utterance.lang = 'ar-SA';
+      } else {
+        utterance.lang = 'en-US';
+      }
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function clearAll() {
+      outputTextArea.value = "";
+      wordCountBadge.classList.add('hidden');
+      actionButtons.classList.add('opacity-50', 'pointer-events-none');
+      window.speechSynthesis.cancel();
+    }
+  </script>
+</body>
+</html>
