@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر تطبيقات وأعمال زعيم البرمجة</title>
+    
+    <!-- خط القاهرة وعرض الأيقونات -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- مكتبة أيقونات Bootstrap المستخدمة في الفوتر -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- تضمين مكتبة Tailwind CSS لدعم كلاسات الفوتر وزر الاتصال -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // تفعيل الدارك مود عن طريق كلاس dark المضاف للـ html/body
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#3b82f6',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* تعريف المتغيرات والتنسيقات الأساسية بدون Layer مكسور */
+        :root {
+            --bg-body: #f4f6f9;
+            --bg-sidebar: #ffffff;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --primary-color: #3b82f6;
+            --border-color: #e2e8f0;
+            --hover-color: #f8fafc;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --accent-color: #f59e0b;
+        }
+
+        html.dark body, body.dark {
+            --bg-body: #0f172a;
+            --bg-sidebar: #1e293b;
+            --bg-card: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --primary-color: #3b82f6;
+            --border-color: #334155;
+            --hover-color: #334155;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* --- الشريط الجانبي (Sidebar) --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            right: 0;
+            top: 0;
+            z-index: 100;
+        }
+
+        .sidebar-brand {
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
+
+        .brand-divider {
+            width: 1px;
+            height: 35px;
+            background-color: var(--border-color);
+            margin: 0 12px;
+        }
+
+        .brand-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        .menu-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+
+        .menu-item.active a, .menu-item a:hover {
+            background-color: var(--hover-color);
+            color: var(--primary-color);
+        }
+
+        .theme-toggle-container {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .toggle-btn {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-body);
+            color: var(--text-main);
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- المحتوى الرئيسي (Main Content) --- */
+        .main-content {
+            margin-right: 260px;
+            width: calc(100% - 260px);
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .content-body {
+            padding: 30px;
+            flex-grow: 1;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            gap: 20px;
+        }
+
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .search-wrapper i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-sidebar);
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .section-group {
+            margin-bottom: 45px;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title span {
+            width: 6px;
+            height: 24px;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .app-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .app-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary-color);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08);
+        }
+
+        .app-icon {
+            width: 65px;
+            height: 65px;
+            border-radius: 14px;
+            background-color: var(--bg-body);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            flex-shrink: 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .app-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow: hidden;
+        }
+
+        .app-name {
+            font-weight: 700;
+            font-size: 1.05rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .app-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* التجاوب مع الشاشات (Responsive) */
+        @media (max-width: 992px) {
+            .sidebar { width: 70px; }
+            .brand-divider, .brand-text, .sidebar-menu span, .toggle-btn span { display: none; }
+            .main-content { margin-right: 70px; width: calc(100% - 70px); }
+            .sidebar-brand { justify-content: center; padding: 15px 0; }
+            .menu-item a { justify-content: center; padding: 12px; }
+        }
+
+        @media (max-width: 576px) {
+            body { flex-direction: column-reverse; }
+            .sidebar {
+                width: 100%; height: 60px; position: fixed; bottom: 0; top: auto;
+                flex-direction: row; border-left: none; border-top: 1px solid var(--border-color);
+            }
+            .sidebar-brand, .theme-toggle-container { display: none; }
+            .sidebar-menu { flex-direction: row; justify-content: space-around; width: 100%; padding: 0; }
+            .main-content { margin-right: 0; width: 100%; padding-bottom: 60px; }
+            .content-body { padding: 15px; }
+            .top-bar { margin-bottom: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الشريط الجانبي (Sidebar) -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <img src="/logo2.png" alt="Omar_Store Logo" class="brand-logo">
+            <div class="brand-divider"></div>
+            <span class="brand-text">Omar_Stor<span class="text-amber-500">🏬</span>e</span>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li class="menu-item active" data-target="all"><a href="#all"><i class="fa-solid fa-house"></i> <span>الرئيسية</span></a></li>
+            <li class="menu-item" data-target="web"><a href="#web"><i class="fa-solid fa-code"></i> <span>تطبيقات ويب</span></a></li>
+            <li class="menu-item" data-target="games"><a href="#games"><i class="fa-solid fa-gamepad"></i> <span>ألعاب ممتعة</span></a></li>
+            <li class="menu-item" data-target="edu"><a href="#edu"><i class="fa-solid fa-graduation-cap"></i> <span>أدوات تعليمية</span></a></li>
+        </ul>
+        
+        <div class="theme-toggle-container">
+            <button class="toggle-btn" id="themeToggle">
+                <i class="fa-solid fa-moon"></i> <span>الوضع الليلي</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="main-content">
+        
+        <!-- جسم الصفحة العلوي (البطاقات والبحث) -->
+        <div class="content-body">
+            <!-- شريط البحث العلوي -->
+            <div class="top-bar">
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن تطبيق أو مشروع هنا...">
+                </div>
+            </div>
+
+            <!-- مجموعة تطبيقات الويب -->
+            <section class="section-group" id="sec-web">
+                <h2 class="section-title"><span></span> تطبيقات الويب الذكية</h2>
+                <div class="apps-grid">
+                    <a href="L.html" class="app-card" data-name="نظام السجل الذكي" target="_blank">
+                        <div class="app-icon" style="color: #3b82f6;"><i class="fa-solid fa-photo-film"></i></div>
+                        <div class="app-details">
+                            <div class="app-name">   نظام السجل الذكي </div>
+                            <div class="app-desc">   لحفظ السجلات اليومية</div>
+                        </div>
+                    </a>
+                    <a href="F.html" class="app-card" data-name="مستخرج النصوص الذكي OCR" target="_blank">
+    <div class="app-icon" style="color: #10b981;"><i class="fa-solid fa-file-image"></i></div>
+    <div class="app-details">
+        <div class="app-name">مستخرج النصوص (OCR)</div>
+        <div class="app-desc">أداة سريعة لرفع الصور واستخراج النصوص العربية والإنجليزية منها فوراً.</div>
+    </div>
+</a>
+
+<a href="G.html" class="app-card" data-name=" مساعد الذكاء الاصطناعي الخارق" target="_blank">
+    <div class="app-icon" style="color: #6366f1;"><i class="fa-solid fa-brain"></i></div>
+    <div class="app-details">
+        <div class="app-name"> مساعد الذكاء الاصطناعي الخارق</div>
+        <div class="app-desc"> مساعدك الذكي الشامل. يمكنك التحدث معه بحرية، أو **إرفاق صور، ملفات PDF، أو مستندات برمجية ونصوص**. اسأله عن أي حل وسيجيب فوراً!.</div>
+    </div>
+</a>
+                </div>
+            </section>
+
+            <!-- مجموعة الألعاب -->
+            <section class="section-group" id="sec-games">
+                <h2 class="section-title"><span></span> ألعاب ويب تفاعلية</h2>
+                <div class="apps-grid">
+                    <a href="R.html" class="app-card" data-name="    لعبة تعلم الكتابة علي كيبورد" target="_blank">
+                        <div class="app-icon" style="color: #ef4444;"><i class="fa-solid fa-shield-virus"></i></div>
+                        <div class="app-details">
+                            <div class="app-name">لعبة تعلم الكتابة علي كيبورد  </div>
+                            <div class="app-desc">       طوّر مهاراتك وسرعتك في الكتابة باللغة العربية بأسلوب تفاعلي ذكي.</div>
+                            
+                        </div>
+                    </a>
+                    <a href="S.html" class="app-card" data-name="لعبة المضرب النيون الاحترافية 🏓" target="_blank">
+                        <div class="app-icon" style="color: #ef4444;"><i class="fa-solid fa-shield-virus"></i></div>
+                        <div class="app-details">
+                            <div class="app-name">لعبة المضرب النيون الاحترافية 🏓</div>
+                            <div class="app-desc">       لعبة مضرب ضد الكمبيوتر بأسلوب تفاعلي ذكي.</div>
+                        </div>
+                    </a>
+                    <a href="H.html" class="app-card" data-name="لعبة المحقق البرمجي: اختراق الأبواب" target="_blank">
+    <div class="app-icon" style="color: #818cf8;"><i class="fa-solid fa-user-secret"></i></div>
+    <div class="app-details">
+        <div class="app-name">لعبة المحقق البرمجي: اختراق الأبواب 🕵️‍♂️💻</div>
+        <div class="app-desc">لعبة مغامرات وحل الغاز شيقة، يعتمد تقدمك فيها على كتابة أكواد برمجية حقيقية لفك تشفير السيرفرات وفتح الأبواب المغلقة.</div>
+    </div>
+</a>
+                </div>
+                        
+                    </a>
+                </div>
+                
+            </section>
+
+            <!-- مجموعة الأدوات التعليمية -->
+            <section class="section-group" id="sec-edu">
+                <h2 class="section-title"><span></span> أدوات ومشاريع تعليمية</h2>
+                <div class="apps-grid">
+                    <a href="https://altawfiq.netlify.app/" class="app-card" data-name="بوابة المناهج والكتب والتقييمات" target="_blank">
+                        <div class="app-icon" style="color: #8b5cf6;"><i class="fa-solid fa-book-open"></i></div>
+                        <div class="app-details">
+                            <div class="app-name">  اكادمية التوفيق</div>
+                            <div class="app-desc"> لتحفيظ القرآن وتاسيس اللغة العربية</div>
+                        </div>
+                    </a>
+                    <a href="" class="app-card" data-name="خريطة الحروف التفاعلية الأندلسية">
+                        <div class="app-icon" style="color: #f59e0b;"><i class="fa-solid fa-map-location-dot"></i></div>
+                        <div class="app-details">
+                            <div class="app-name">خريطة الحروف الأندلسية</div>
+                            <div class="app-desc">تصميم تراثي تعليمي لربط الحروف بالحيوانات والنباتات بأسلوب تفاعلي جذاب.</div>
+                        </div>
+                    </a>
+                </div>
+            </section>
+        </div>
+
+        <!-- الفوتر المخصص -->
+        <app-footer>
+            <div class="relative">
+                <svg viewBox="0 0 1440 160" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64">
+                    <path d="M0,112L80,104C160,96,320,80,480,85.3C640,91,800,117,960,114.7C1120,112,1280,80,1440,58.7V160H0Z" class="fill-gray-200 dark:fill-gray-900"></path>
+                </svg>
+                <div class="w-full bg-gray-200 dark:bg-gray-900 text-slate-800 dark:text-slate-200">
+                    <div data-aos="fade-down" class="w-full px-4 py-8 mx-auto max-w-7xl md:px-8 lg:px-12 aos-init aos-animate">
+                        <div class="grid grid-cols-1 gap-8 mb-8 sm:grid-cols-2 lg:grid-cols-4">
+                            <div class="space-y-4">
+                                <div class="flex flex-col justify-start w-full gap-2">
+                                    <div class="flex flex-col items-center gap-2">
+                                        <img class="w-20 h-20" alt="Omar_Store Logo" src="/logo2.png">
+                                        <span class="ml-2 text-xl font-bold tracking-wide text-primary-500 dark:text-primary-400"> Omar_Store</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 text-justify">نحن في Omar_Store نقدم حلولًا برمجية وتسويقية متكاملة، تشمل تطوير المواقع والتطبيقات، والدعاية والإعلان، مصممة خصيصًا لدعم نمو أعمالك في السعودية ومصر وجميع أنحاء الوطن العربي، مع التزامنا بأعلى معايير الأداء، الأمان، والابتكار</p>
+                                    <div class="flex flex-wrap justify-center gap-4 px-4 mt-4">
+                                        <a target="_blank" href="https://www.facebook.com/fahdclouds"><img class="h-8" alt="Facebook" src="https://fahd-cloud-site.b-cdn.net/assets/layout/footer/social-media/facebook.svg"></a>
+                                        <a target="_blank" href="https://instagram.com/fahdcloud"><img class="h-8" alt="Instagram" src="https://fahd-cloud-site.b-cdn.net/assets/layout/footer/social-media/instagram.svg"></a>
+                                        <a target="_blank" href="https://twitter.com/fahdcloud"><img class="h-8" alt="Twitter" src="https://fahd-cloud-site.b-cdn.net/assets/layout/footer/social-media/twitter.svg"></a>
+                                        <a target="_blank" href="https://api.whatsapp.com/send/?phone=201026259724&amp;text="><img class="h-8" alt="whatsapp" src="https://fahd-cloud-site.b-cdn.net/assets/layout/footer/social-media/whatsapp.svg"></a>
+                                        <a target="_blank" href="https://www.tiktok.com/@fahdcloud"><img class="h-8" alt="tiktok" src="https://fahd-cloud-site.b-cdn.net/assets/layout/footer/social-media/tiktok.svg"></a>
+                                        <a target="_blank" href="https://www.youtube.com/@fahdcloud1731"><img class="h-8" alt="youtube" src="https://fahd-cloud-site.b-cdn.net/assets/layout/footer/social-media/youtube.svg"></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="w-fit">
+                                    <h3 class="text-xl font-bold tracking-wide">روابط مفيدة</h3>
+                                    <div class="flex flex-row items-center justify-center gap-1 mt-1">
+                                        <span class="w-full h-1 rounded-full bg-blue-500"></span>
+                                        <span class="w-2 h-1 rounded-full bg-blue-500"></span>
+                                        <span class="w-1 h-1 rounded-full bg-blue-500"></span>
+                                    </div>
+                                </div>
+                                <ul class="flex flex-col gap-4 text-sm text-gray-600 dark:text-gray-400">
+                                    <li>
+                                        <a class="flex items-center gap-4 hover:text-primary-500 no-underline" href="index.html">
+                                            <i class="bi bi-house"></i>
+                                            <span>الصفحة الرئيسية</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="flex items-center gap-4 hover:text-primary-500 no-underline" href="/our-works.html">
+                                            <i class="bi bi-briefcase"></i>
+                                            <span>أعمالنا</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="flex items-center gap-4 hover:text-primary-500 no-underline" href="about-us.html">
+                                            <i class="bi bi-people"></i>
+                                            <span>من نحن</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="flex items-center gap-4 hover:text-primary-500 no-underline" href="payment-methods.html">
+                                            <i class="bi bi-credit-card"></i>
+                                            <span>طرق الدفع</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="flex items-center gap-4 hover:text-primary-500 no-underline" href="contact-us.html">
+                                            <i class="bi bi-headset"></i>
+                                            <span>تواصل معنا</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="w-fit">
+                                    <h3 class="text-xl font-bold tracking-wide">نبذة عن صاحب الشركة</h3>
+                                    <div class="flex flex-row items-center justify-center gap-1 mt-1">
+                                        <span class="w-full h-1 rounded-full bg-blue-500"></span>
+                                        <span class="w-2 h-1 rounded-full bg-blue-500"></span>
+                                        <span class="w-1 h-1 rounded-full bg-blue-500"></span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-3 text-sm text-gray-600 dark:text-gray-400">
+                                    <div class="flex items-center gap-2">
+                                        <img alt="Location Icon" class="h-5" src="https://fahd-cloud-site.b-cdn.net/assets/layout/footer/branches/call-phone.webp">
+                                        <a target="_blank" class="hover:text-primary-500" href="tel:+01220893920"> 01220893920 </a>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <img alt="Location Icon" class="h-5" src="https://fahd-cloud-site.b-cdn.net/assets/layout/footer/branches/egypt-flag.webp">
+                                        <span class="hover:text-primary-500">الاسم: عمر تامر حميدة</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <img alt="Location Icon" class="h-5" src="https://fahd-cloud-site.b-cdn.net/assets/layout/footer/branches/send-email.webp">
+                                        <a target="_blank" class="hover:text-primary-500" href="mailto:omarstor@gmail.com"> omarstor@gmail.com </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="w-fit">
+                                    <h3 class="text-xl font-bold tracking-wide">الرمز التجاري</h3>
+                                    <div class="flex flex-row items-center justify-center gap-1 mt-1">
+                                        <span class="w-full h-1 rounded-full bg-blue-500"></span>
+                                        <span class="w-2 h-1 rounded-full bg-blue-500"></span>
+                                        <span class="w-1 h-1 rounded-full bg-blue-500"></span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-4">
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">يوفر هذا الرمز الوصول إلى الموقع الإلكتروني للعلامة التجارية.</p>
+                                    <img alt="Commercial Registration QR Code" class="self-start max-h-[12rem] max-w-[12rem] rounded-lg shadow-md" src="QR.png">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col items-center justify-between gap-6 mb-8 md:flex-row md:items-end border-b border-gray-300 dark:border-gray-700 pb-6">
+                            <div class="flex flex-wrap justify-center gap-4">
+                                <a target="_blank" href="https://play.google.com/store/apps/details?id=com.omarstor.app"><img class="object-cover h-10" alt="Google Play" src="https://fahd-cloud-site.b-cdn.net/assets/layout/footer/stores/google-play.svg"></a>
+                                <a target="_blank" href="https://apps.apple.com/app/omarstor/id123456789"><img class="object-cover h-10" alt="App Store" src="https://fahd-cloud-site.b-cdn.net/assets/layout/footer/stores/apple-store.svg"></a>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <img class="object-cover h-6" alt="فيزا" src="https://fahd-cloud-site.b-cdn.net/assets/payments-page/payments-gateways/visa.WebP">
+                                <img class="object-cover h-6" alt="بنك مصر" src="https://fahd-cloud-site.b-cdn.net/assets/payments-page/payments-gateways/bankMisr.WebP">
+                                <img class="object-cover h-6" alt="مصرف الراجحي" src="https://fahd-cloud-site.b-cdn.net/assets/payments-page/payments-gateways/alrajhibank.WebP">
+                                <img class="object-cover h-6" alt="انستا باي" src="https://fahd-cloud-site.b-cdn.net/assets/payments-page/payments-gateways/instaPay.WebP">
+                                <img class="object-cover h-6" alt="كاش" src="https://fahd-cloud-site.b-cdn.net/assets/payments-page/payments-gateways/cachPay.WebP">
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col items-center justify-between gap-4 pt-2 pb-4 mt-4">
+                            <p class="text-sm text-center text-gray-600 dark:text-gray-400">© 2026 جميع الحقوق محفوظة لشركة عمر ستور</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </app-footer>
+    </main>
+
+    <!-- زر الاتصال العائم عبر الواتساب -->
+    <app-floating-contact-us-button>
+        <a target="_blank" aria-label="اتصل بنا" class="fixed z-50 flex items-center gap-3 px-4 py-3 text-sm font-semibold text-white transition-all duration-300 bg-green-600 rounded-full shadow-lg bottom-5 left-5 md:left-auto md:right-5 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-400" href="https://api.whatsapp.com/send/?phone=201220893920&amp;text=%D8%A7%D8%B1%D8%BA%D8%A8%20%D9%81%D9%82%20%D8%A7%D9%84%D8%AA%D9%88%D8%A7%D1%85%D9%84%20%D9%85%D8%B9%D9%83%D9%85">
+            <i class="sm:text-xl text-lg bi bi-whatsapp"></i>
+            <span class="hidden sm:inline">تواصل معنا</span>
+        </a>
+    </app-floating-contact-us-button>
+
+    <!-- الجافا سكريبت للبحث والتنقل والوضع الليلي -->
+    <script>
+        // 1. نظام البحث الفوري (Real-time Search)
+        const searchInput = document.getElementById('searchInput');
+        const sections = document.querySelectorAll('.section-group');
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+
+            sections.forEach(section => {
+                let hasVisibleCard = false;
+                const cards = section.querySelectorAll('.app-card');
+                
+                cards.forEach(card => {
+                    const name = card.getAttribute('data-name').toLowerCase();
+                    if (name.includes(query)) {
+                        card.style.display = 'flex';
+                        hasVisibleCard = true;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                section.style.display = hasVisibleCard ? 'block' : 'none';
+            });
+        });
+
+        // 2. نظام التصفية من الشريط الجانبي (Sidebar Navigation)
+        const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelector('.sidebar-menu .menu-item.active').classList.remove('active');
+                item.classList.add('active');
+
+                const target = item.getAttribute('data-target');
+                sections.forEach(sec => {
+                    if (target === 'all' || sec.id === `sec-${target}`) {
+                        sec.style.display = 'block';
+                    } else {
+                        sec.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // 3. تفعيل الوضع الليلي والنهاري بالتوافق مع Tailwind و CSS الخاص بالصفحة
+        const themeToggle = document.getElementById('themeToggle');
+        const icon = themeToggle.querySelector('i');
+        const text = themeToggle.querySelector('span');
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            document.documentElement.classList.toggle('dark'); 
+            
+            if (document.body.classList.contains('dark')) {
+                icon.className = 'fa-solid fa-sun';
+                text.innerText = 'الوضع النهاري';
+            } else {
+                icon.className = 'fa-solid fa-moon';
+                text.innerText = 'الوضع الليلي';
+            }
+        });
+    </script>
+</body>
+</html>
