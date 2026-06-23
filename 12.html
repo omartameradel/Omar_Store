@@ -118,6 +118,63 @@
             padding: 2px 4px;
             border-radius: 4px;
         }
+        /* زر الترجمة داخل الكارت */
+.translate-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.1), rgba(157, 80, 187, 0.1));
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    color: var(--primary);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-family: 'Tajawal', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 5;
+}
+
+.translate-btn:hover {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.4);
+    border-color: transparent;
+    transform: translateY(-1px);
+}
+
+/* لتوسيع مساحة العنوان المخصص للسؤال حتى لا يتداخل مع الزر */
+.q-text {
+    padding-top: 15px; /* إزاحة علوية لتجنب الاصطدام بالزر المستقر في الأعلى */
+}
+
+/* تنسيق النصوص العربية لتبدأ من اليمين إلى اليسار بطلاقة */
+.rtl-text {
+    direction: rtl;
+    text-align: right;
+    font-family: 'Tajawal', sans-serif !important; /* إلغاء فونت الأكواد للإجابة العربية */
+}
+
+/* تعديل بسيط للبادئة السهمية لتبدو صحيحة في الـ RTL */
+.a-text.rtl-text::before {
+    content: "◀_ ";
+    display: inline-block;
+    margin-left: 5px;
+}
+
+/* استجابة الشاشات الصغيرة لزر الترجمة */
+@media (max-width: 640px) {
+    .translate-btn {
+        position: static;
+        display: block;
+        width: 100%;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+    .q-text {
+        padding-top: 0;
+    }
+}
     </style>
 </head>
 <body>
@@ -461,6 +518,113 @@
             });
         }
     }
+    // دالة عرض الكروت وبنائها في الـ HTML
+function renderQuestions(questions) {
+    const container = document.querySelector('.qa-container');
+    
+    // إذا لم يجد الحاوية في الصفحة
+    if (!container) {
+        console.error("لم يتم العثور على عنصر .qa-container في صفحة HTML");
+        return;
+    }
+
+    container.innerHTML = '';
+
+    // إذا كانت نتائج البحث فارغة
+    if (questions.length === 0) {
+        container.innerHTML = '<div class="no-data">لم يتم العثور على أسئلة مطابقة للبحث 🔍</div>';
+        return;
+    }
+
+    // بناء الكروت وضخ زرار الترجمة جواها
+    questions.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+            <button class="translate-btn" onclick="translateCard(this, ${index})">ترجمة للعربية 🌐</button>
+            <div class="q-text">${item.q}</div>
+            <div class="a-text">${item.a}</div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// دالة الترجمة السحرية المباشرة
+async function translateCard(button, index) {
+    const card = button.closest('.card');
+    const qElement = card.querySelector('.q-text');
+    const aElement = card.querySelector('.a-text');
+    
+    if (button.disabled) return;
+    button.disabled = true;
+    button.innerText = "... جاري الترجمة ⏳";
+
+    try {
+        const item = qaData[index];
+        const qTextToTranslate = item.q.replace(/\\"/g, '"');
+        const aTextToTranslate = item.a;
+
+        const combinedText = `${qTextToTranslate} ||| ${aTextToTranslate}`;
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ar&dt=t&q=${encodeURIComponent(combinedText)}`;
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        let translatedCombined = "";
+        data[0].forEach(sentence => {
+            if (sentence[0]) translatedCombined += sentence[0];
+        });
+
+        const parts = translatedCombined.split("|||");
+        
+        if (parts.length >= 2) {
+            qElement.innerHTML = parts[0].trim();
+            qElement.classList.add('rtl-text');
+            
+            aElement.innerHTML = parts[1].trim();
+            aElement.classList.add('rtl-text');
+            
+            button.innerText = "إظهار النص الأصلي 🔄";
+            button.setAttribute("onclick", `restoreCard(this, ${index})`);
+        }
+    } catch (error) {
+        console.error("خطأ في الترجمة:", error);
+        button.innerText = "فشلت الترجمة ❌";
+    } finally {
+        button.disabled = false;
+    }
+}
+
+// دالة إلغاء الترجمة والعودة للإنجليزي
+function restoreCard(button, index) {
+    const card = button.closest('.card');
+    const qElement = card.querySelector('.q-text');
+    const aElement = card.querySelector('.a-text');
+    
+    qElement.innerHTML = qaData[index].q;
+    qElement.classList.remove('rtl-text');
+    
+    aElement.innerHTML = qaData[index].a;
+    aElement.classList.remove('rtl-text');
+    
+    button.innerText = "ترجمة للعربية 🌐";
+    button.setAttribute("onclick", `translateCard(this, ${index})`);
+}
+
+// تفعيل ميزة البحث الذكي لربطها مع دالة الـ Render الجديدة
+document.getElementById('searchInput').addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const filtered = qaData.filter(item => 
+        item.q.toLowerCase().includes(searchTerm) || 
+        item.a.toLowerCase().includes(searchTerm)
+    );
+    renderQuestions(filtered);
+});
+
+// تشغيل العرض الأول للأسئلة عند فتح الصفحة مباشرة
+document.addEventListener('DOMContentLoaded', () => {
+    renderQuestions(qaData);
+});
 
     function highlight(text, query) {
         if (!query) return text;
@@ -474,6 +638,7 @@
 
     // Initial render
     displayData();
+  
 </script>
 
 </body>
