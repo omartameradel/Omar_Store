@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Quiz System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #161d2f;
+            --primary: #00d2ff;
+            --secondary: #9d50bb;
+            --text: #e2e8f0;
+            --success: #00ff88;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .search-box {
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            margin-bottom: 40px;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 18px 30px;
+            border-radius: 15px;
+            border: 2px solid #2d3748;
+            background: var(--card-bg);
+            color: white;
+            font-size: 18px;
+            outline: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: 0.3s;
+        }
+
+        #searchInput:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+        }
+
+        .qa-container {
+            display: grid;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            border-left: 4px solid var(--primary);
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: scale(1.01);
+            background: #1c253d;
+        }
+
+        .q-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #fff;
+            line-height: 1.5;
+            display: block;
+        }
+
+        .a-text {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            color: var(--success);
+            font-family: 'Fira Code', monospace;
+            border: 1px solid #2d3748;
+        }
+
+        .a-text::before {
+            content: "Answer: ";
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .no-data {
+            text-align: center;
+            font-size: 20px;
+            margin-top: 50px;
+            color: #718096;
+        }
+
+        .highlight {
+            background: rgba(157, 80, 187, 0.4);
+            color: #fff;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <header>
+        <h1>نظام البحث الذكي في أسئلة البرمجة</h1>
+    </header>
+
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="ابحث عن أي معلومة أو سؤال هنا...">
+    </div>
+
+    <div id="qaList" class="qa-container"></div>
+    <div id="noResults" class="no-data" style="display:none;">عذراً، لم نجد ما تطابق مع بحثك..</div>
+</div>
+
+<script>
+    const qaData = [
+  { q: "1.What is the most accurate definition of \"Programming\"?", a: "The process of creating specific, step-by-step instructions for a computer." },
+  { q: "2.What do we call the step-by-step \"recipe\" or plan used to solve a problem before writing code?", a: "Algorithm." },
+  { q: "3.Why do we use programming languages like Python instead of \"Binary\" (0s and 1s)?", a: "Languages like Python act as a bridge that is easier for humans to read and write." },
+  { q: "4.What does it mean that Python is a \"High-Level\" language?", a: "It is designed to be easy for humans to read by using English-like words." },
+  { q: "5.Why is Python considered the \"Gold Standard\" for Artificial Intelligence (AI)?", a: "It has simple syntax and massive libraries for tasks like face recognition." },
+  { q: "6.What is an \"Open Source\" language?", a: "A language that is free for everyone to use and improve." },
+  { q: "7.What is the primary foundational step for setting up the local programming environment?", a: "Installing the core Python software on your personal local machine." },
+  { q: "8.What is the main purpose of launching the Jupyter application?", a: "It provides an interactive local interface to write Python code." },
+  { q: "9.What is the primary definition of the Google Colab platform?", a: "A cloud computing environment for writing Python without local installation." },
+  { q: "10.What is the main advantage of using Google Colab for beginners?", a: "It runs in the browser without installation" },
+  { q: "11.What happens when you press “Shift + Enter” in a code cell?", a: "The code runs and shows the output below the cell" },
+  { q: "12.What is the role of the CPU requirement in local Jupyter setup?", a: "It determines how fast your computer can process tasks" },
+  { q: "13.What is an IDE (Integrated Development Environment)?", a: "A specialized software workspace (like VS Code) used to write and test code." },
+  { q: "14.Which part of the interface displays the \"Output\" or result of your program?", a: "The Terminal/Console." },
+  { q: "15.If you write Print(\"Hello\") instead of print(\"Hello\"), why will the program fail?", a: "Python is \"Case Sensitive\" and treats capital letters differently." },
+  { q: "16.What is a \"Variable\" in programming?", a: "A named \"container\" used to store data in the computer's memory." },
+  { q: "17.What symbol is used to start a \"Comment\" in Python?", a: "#" },
+  { q: "18.Why is \"Indentation\" (the space at the start of a line) important in Python?", a: "It tells the computer which lines of code belong together in a group." },
+  { q: "19.Which Python function is used to gather information from the user's keyboard?", a: "input()." },
+  { q: "20.What is the default \"Data Type\" of any information collected by the input() function?", a: "String (Text)." },
+  { q: "21.What does the print() function do in a Python program?", a: "It displays information or results on the screen." },
+  { q: "22.If you are storing a person's age (e.g., 14), which data type should you use?", a: "Integer." },
+  { q: "23.Which data type is used to store decimal numbers, such as a price ($19.99)?", a: "Float." },
+  { q: "24.What does a \"Boolean\" data type represent?", a: "One of two values: True or False." },
+  { q: "25.A student writes the following line in Python: result = input(\"Enter a score: \") and then tries to calculate result + 10. The program crashes. What is the most likely cause?", a: "input() returns a string, so adding an integer without converting first causes a TypeError." },
+  { q: "26.Python is described as an interpreted language, while C++ is typically compiled. Which statement best describes a key trade-off of Python's interpreted approach?", a: "Python runs slower than compiled languages, but provides instant feedback that accelerates learning and development." },
+  { q: "27.You are building a program that stores a student's percentage grade, such as 87.5. Which data type should you use, and why?", a: "float, because the value contains a decimal point and requires precision." },
+  { q: "28.In Python, indentation is not just a style preference — it is part of the language's syntax. What happens if indentation is missing or inconsistent inside an if block?", a: "Python raises an IndentationError and stops execution." },
+  { q: "29.A developer wants to share a Python notebook with a classmate who has no software installed on their computer. Which environment is the best choice, and what is its primary advantage?", a: "Google Colab, because it runs in any browser, requires zero installation, and auto-saves to Google Drive." },
+  { q: "30.Examine this code: print(\"2026\", \"03\", \"30\", sep=\"/\"). What will be printed?", a: "2026/03/30" },
+  { q: "31.A programmer writes: total = 10 / 2. A colleague says the result is an integer 5. Is the colleague correct, and why?", a: "No — the / operator always returns a float in Python, so the result is 5.0." },
+  { q: "32.Which of the following variable names violates Python's naming rules and would cause a SyntaxError?", a: "2score = 95" },
+  { q: "33.A Python script includes several lines with # at the start, written in plain English explaining what each section does. A junior developer removes them, saying they slow the program down. Is this decision correct?", a: "No — Python completely ignores comments at runtime, so they have zero effect on speed." },
+  { q: "34.A student writes name = \"Python\" and then prints name[1]. They expect the output to be \"P\" because it is the first letter. What is actually printed, and why?", a: "\"y\" — string indexing starts at 0, so name[1] refers to the second character." },
+  { q: "35.What is an algorithm?", a: "A step-by-step plan or recipe for solving a problem" },
+  { q: "36.A user types their age (16) into an input(). What type does Python store it as?", a: "str — input() ALWAYS returns a string" },
+  { q: "37.What is the result of 10 // 3 in Python?", a: "3" },
+  { q: "38.Which operator is used to find the remainder of a division?", a: "%" },
+  { q: "39.According to PEMDAS, what is evaluated first in: 2 + 3 * 4?", a: "Multiplication" },
+  { q: "40.Which escape sequence is used to move text to a new line?", a: "\\n" },
+  { q: "41.How do you repeat a string \"Hi\" 5 times?", a: "\"Hi\" * 5" },
+  { q: "42.What is the correct way to use an f-string to include a variable \"name\"?", a: "f\"Hello {name}\"" },
+  { q: "43.What data type does the input() function always return?", a: "String" },
+  { q: "44.Which function converts a string \"10.5\" into a decimal number?", a: "float()" },
+  { q: "45.What will type(True) return?", a: "<class 'bool'>" },
+  { q: "46.Which operator checks if two values are NOT equal?", a: "!=" },
+  { q: "47.What is the result of (5 > 3) and (10 < 2)?", a: "False" },
+  { q: "48.The \"not\" operator does what to a Boolean value?", a: "Flips it (True becomes False)" },
+  { q: "49.What character is required at the end of an \"if\" statement line?", a: "\":\"" },
+  { q: "50.How does Python know which code belongs inside an \"if\" block?", a: "Using indentation (4 spaces)" },
+  { q: "51.Which keyword is used to check multiple conditions after the first \"if\"?", a: "elif" },
+  { q: "52.What is the result of 10 / 2 in Python?", a: "5.0" },
+  { q: "53.Which operator is used to find the remainder of a division?", a: "%" },
+  { q: "54.What is the output of print(\"Hi\" * 3)?", a: "HiHiHi" },
+  { q: "55.Which escape sequence is used to add a new line in a string?", a: "\\n" },
+  { q: "56.How do you correctly use an f-string to print a variable named \"price\"?", a: "f\"Price is {price}\"" },
+  { q: "57.What data type does the input() function always return?", a: "str" },
+  { q: "58.What is the result of int(7.9) in Python?", a: "7" },
+  { q: "59.Which operator is used to check if two values are equal?", a: "==" },
+  { q: "60.In an \"and\" operation, when is the result True?", a: "If all conditions are True" },
+  { q: "61.What is the standard number of spaces used for indentation in Python?", a: "4 spaces" },
+  { q: "62.How does a For Loop differ from an If statement?", a: "A For loop repeats code multiple times, an If runs it once if a condition is true." },
+  { q: "63.In range(1, 5), which numbers are actually generated?", a: "1, 2, 3, 4" },
+  { q: "64.What happens to the Loop Variable after each turn (iteration)?", a: "It is 'recycled' and updated to the next value in the sequence." },
+  { q: "66.When is a While Loop preferred over a For Loop?", a: "When the number of repeats depends on a condition that changes over time." },
+  { q: "67.What must be included inside a While Loop to prevent an Infinite Loop?", a: "An update step that eventually makes the condition False." },
+  { q: "68.What is the result of using 'break' inside a While Loop?", a: "It immediately exits the loop and continues the rest of the program." },
+  { q: "69.What is the primary goal of the DRY Principle in Function design?", a: "To avoid copy-pasting code and increase reusability." },
+  { q: "70.What is the difference between 'Defining' a function and 'Calling' it?", a: "Defining is like writing a recipe; Calling is like cooking it." },
+  { q: "71.If you define a function but never call its name, what happens?", a: "The function code never executes." },
+  { q: "72.What is a 'Parameter' in a function definition?", a: "A placeholder 'slot' waiting for data to be passed in." },
+  { q: "73.How does 'return' differ from 'print' inside a function?", a: "Print shows text on screen; Return hands data back to the program to be stored." },
+  { q: "74.If a function is defined as def greet(name):, what is the 'name' part called?", a: "The Parameter." },
+  { q: "75.What is the purpose of the 'try' block?", a: "To avoid hiding unrelated bugs and provide accurate feedback." },
+  { q: "76.When does the 'finally' block execute?", a: "Always, regardless of whether an error occurred or not." },
+  { q: "77.Which loop is best used when you know the exact number of items to iterate over?", a: "For Loop" },
+  { q: "78.What is the result of range(5)?", a: "0, 1, 2, 3, 4" },
+  { q: "79.What keyword is used to exit a loop prematurely?", a: "break" },
+  { q: "80.What happens if code under a 'for' loop is NOT indented?", a: "It causes an IndentationError" },
+  { q: "81.Which keyword is used to define a custom reusable block of logic?", a: "def" },
+  { q: "82.What is the difference between Parameters and Arguments?", a: "Parameters are placeholders; Arguments are actual data" },
+  { q: "83.If a function uses 'print' instead of 'return', what value is sent back to the main program?", a: "None" },
+  { q: "84.In a try/except block, where should you place the code that might crash?", a: "In the try block" },
+  { q: "85.What is 'Stack Unwinding'?", a: "Python searching backward for a safety net (except block)" },
+  { q: "86.What does the 'DRY' principle stand for?", a: "Don't Repeat Yourself" },
+  { q: "87.What will the sequence range(2, 6) generate?", a: "2, 3, 4, 5" },
+  { q: "88.What happens if you forget to include an \"Update\" step inside a While Loop?", a: "The program enters an Infinite Loop and crashes" },
+  { q: "89.What does the 'def' keyword do in Python?", a: "It defines a new function and saves the instructions in memory" },
+  { q: "90.What is the main difference between a Parameter and an Argument?", a: "A parameter is the empty slot in the definition, and an argument is the real data passed during the call." },
+  { q: "91.Why do professional developers use 'except ValueError:' instead of just 'except:'?", a: "It targets a specific issue, preventing unrelated or dangerous bugs from being hidden silently" },
+  { q: "92.In a List, what does 'Zero-Based Indexing' mean?", a: "The first item is at position 0." },
+  { q: "93.Which method is used to add a new item to the very end of a List?", a: ".append()" },
+  { q: "94.What is the result of letters[:2] if letters = ['A', 'B', 'C']?", a: "['A', 'B']" },
+  { q: "95.If you have a list called `data = [10, 20, 30, 40]`, what will `print(data[-1])` output?", a: "40" },
+  { q: "96.What is the main benefit of using a Dictionary over a List for looking up specific data?", a: "Dictionaries allow you to find data using a unique Key instead of a position number." },
+  { q: "97.Which bracket is used to define a Dictionary?", a: "Curly { }" },
+  { q: "98.What happens if you try to access a Key that doesn't exist using bracket notation (dict['missing'])?", a: "It crashes the program with a KeyError." },
+  { q: "99.If `data = {\"speed\": 100}`, what happens if you write `print(data[\"altitude\"])`?", a: "It crashes the program with a KeyError" },
+  { q: "100.What happens if you try to add the number 5 to a Set that already contains {5, 10}?", a: "The set remains {5, 10} because Sets only store unique items." },
+  { q: "101.Which operator is used to find the 'Intersection' (common items) between two Sets?", a: "&" },
+  { q: "102.Why can't you use an index (like my_set[0]) on a Set?", a: "Sets are unordered and do not have positions." },
+  { q: "103.If `data = {1, 2, 3}`, what happens if you write `print(data[0])`?", a: "It crashes with a TypeError because Sets do not support indexing" },
+  { q: "104.How do you iterate over both Keys and Values in a Dictionary at the same time?", a: "for k, v in my_dict.items():" },
+  { q: "105.Why is it dangerous to remove an item from a List while you are looping through it?", a: "It shifts the remaining items, causing the loop to skip items or behave erratically." },
+  { q: "106.What internal signal tells a For Loop that the collection has ended?", a: "StopIteration" },
+  { q: "107.If you write `for item in my_dict:`, what will the `item` variable contain?", a: "Only the Keys of the dictionary" },
+  { q: "108.What happens if you append an item to a List inside a function?", a: "The original list in the main program is permanently changed because lists are passed by reference." },
+  { q: "109.How can you pass a List to a function without allowing the function to modify the original?", a: "Pass a copy of the list (e.g., my_list.copy())." },
+  { q: "110.In a Data Pipeline, what is the best way to handle 'messy' data passed to a function?", a: "Use a For Loop inside the function to filter and clean the data before processing." },
+  { q: "111.Why must you be careful when using `.append()` or `.remove()` on a List passed into a Function as an argument?", a: "Because Lists are passed by memory reference, so changing it inside the function alters the original data in the main program." },
+  { q: "112.In System Architecture, what is the difference between Global and Local state?", a: "Global persists; Local is temporary and isolated." },
+  { q: "113.Which Data Structure is best for storing a unique list of 'VIP IDs' for instant verification?", a: "Set" },
+  { q: "114.What is 'Modular Logic' in architecture?", a: "Breaking down a large program into small, independent, and reusable functions." },
+  { q: "115.Why do Professional Developers break their main program logic into smaller Functions?", a: "It makes the code modular, readable, and easier to test and maintain." },
+  { q: "116.Which bracket is used to define a List in Python?", a: "Square Brackets [ ]" },
+  { q: "117.What is the index of the first item in a Python List?", a: "0" },
+  { q: "118.What is the result of [10, 20, 30, 40][1:3]?", a: "[20, 30]" },
+  { q: "119.Which data structure stores information in Key-Value pairs?", a: "Dictionary" },
+  { q: "120.Why is the .get() method safer than using square brackets for Dictionaries?", a: "It prevents a KeyError crash by returning a default value" },
+  { q: "121.What is the main characteristic of a Set?", a: "It only stores unique items and automatically removes duplicates" },
+  { q: "122.Which method is used to get both Keys and Values while looping through a Dictionary?", a: ".items()" },
+  { q: "123.What happens if you modify a List inside a function?", a: "The original list is permanently changed because it's passed by reference" },
+  { q: "124.Which collection would you choose to store a unique list of 'Banned User IDs' for fast lookup?", a: "Set" },
+  { q: "125.In System Architecture, what is 'Global State'?", a: "Data that persists throughout the program's lifetime, usually defined outside functions" },
+  { q: "126. What is Python?", a: "B) A Programming Language" },
+  { q: "127. Which function is used to display text on the screen?", a: "C) print()" },
+  { q: "128. Which function is used to get input from the user?", a: "D) input()" },
+  { q: "129. What is the data type of 100?", a: "C) int" },
+  { q: "130. What is the data type of 15.7?", a: "A) float" },
+  { q: "131. What is the data type of \"Python\"?", a: "C) str" },
+  { q: "132. Which operator is used for multiplication?", a: "B) *" },
+  { q: "133. What is the result of 10 % 4?", a: "A) 2" },
+  { q: "134. Which operator is used for exponentiation?", a: "C) **" },
+  { q: "135. What is the result of: 5 == 5", a: "C) True" },
+  { q: "136. Which operator means \"Not Equal\"?", a: "C) !=" },
+  { q: "137. What does AND mean?", a: "B) All conditions must be True" },
+  { q: "138. What does OR mean?", a: "C) At least one condition must be True" },
+  { q: "139. What does NOT do?", a: "C) Reverses True and False" },
+  { q: "15. Which statement is used for decision making?", a: "B) if" },
+  { q: "16. Which loop is used when the number of repetitions is known?", a: "C) for" },
+  { q: "17. Which loop continues while a condition is True?", a: "B) while" },
+  { q: "18. What is the main purpose of Functions?", a: "C) Organize and reuse code" },
+  { q: "19. Which data structure stores items in order and allows duplicates?", a: "C) List" },
+  { q: "20. Which data structure does NOT allow duplicate values?", a: "C) Set" },
+  { q: "21. Which symbol is used to write a comment in Python?", a: "C) #" },
+  { q: "22. Which of the following is a Boolean value?", a: "C) True" },
+  { q: "23. What will be the output?\nx=7\nif x>5:\n  print(\"Yes\")", a: "C) Yes" },
+  { q: "24. What is the result of: True and False", a: "B) False" },
+  { q: "25. What is the result of: True or False", a: "A) True" },
+
+  // --- جولة المفاهيم والتعريفات الأساسية ---
+  { q: "26. What is the most accurate definition of \"Programming\"?", a: "d) The process of creating specific, step-by-step instructions for a computer" },
+  { q: "27. What do we call the step-by-step \"recipe\" or plan used to solve a problem before writing code?", a: "A) Algorithm" },
+  { q: "28. Why do we use programming languages like Python instead of \"Binary\" (0s and 1s)?", a: "C) Languages like Python act as a bridge that is easier for humans to read and write" },
+  { q: "29. What does it mean that Python is a \"High-Level\" language?", a: "C) It is designed to be easy for humans to read by using English-like words." },
+  { q: "30. Why is Python considered the \"Gold Standard\" for Artificial Intelligence (AI)?", a: "A) It has simple syntax and massive libraries for tasks like face recognition." },
+  { q: "31. What is an \"Open Source\" language?", a: "B) A language that is free for everyone to use and improve." },
+
+  // --- جولة بيئة العمل (Environments & Tools) ---
+  { q: "32. What is the primary foundational step for setting up the local programming environment?", a: "C) Installing the core Python software on your personal local machine." },
+  { q: "33. What is the main purpose of launching the Jupyter application?", a: "C) It provides an interactive local interface to write Python code." },
+  { q: "34. What is the primary definition of the Google Colab platform?", a: "A) A cloud computing environment for writing Python without local installation." },
+  { q: "35. What is the main advantage of using Google Colab for beginners?", a: "C) It runs in the browser without installation" },
+  { q: "36. What happens when you press “Shift + Enter” in a code cell?", a: "A) The code runs and shows the output below the cell" },
+  { q: "37. What is the role of the CPU requirement in local Jupyter setup?", a: "B) It determines how fast your computer can process tasks" },
+  { q: "38. What is an IDE (Integrated Development Environment)?", a: "A) A specialized software workspace (like VS Code) used to write and test code." },
+  { q: "39. Which part of the interface displays the \"Output\" or result of your program?", a: "D) The Terminal/Console." },
+  { q: "40. If you write Print(\"Hello\") instead of print(\"Hello\"), why will the program fail?", a: "B) Python is \"Case Sensitive\" and treats capital letters differently." },
+
+  // --- جولة أساسيات لغة بايثون وتعمق الصياغة ---
+  { q: "41. What is a \"Variable\" in programming?", a: "A) A named \"container\" used to store data in the computer's memory." },
+  { q: "42. What symbol is used to start a \"Comment\" in Python?", a: "D) #" },
+  { q: "43. Why is \"Indentation\" (the space at the start of a line) important in Python?", a: "D) It tells the computer which lines of code belong together in a group." },
+  { q: "44. Which Python function is used to gather information from the user's keyboard?", a: "B) input()" },
+  { q: "45. What is the default \"Data Type\" of any information collected by the input() function?", a: "D) String (Text)." },
+  { q: "46. What does the print() function do in a Python program?", a: "B) It displays information or results on the screen." },
+  { q: "47. If you are storing a person's age (e.g., 14), which data type should you use?", a: "C) Integer." },
+  { q: "48. Which data type is used to store decimal numbers, such as a price ($19.99)?", a: "B) Float." },
+  { q: "49. What does a \"Boolean\" data type represent?", a: "D) One of two values: True or False." },
+
+  // --- أسئلة الاختيار المتقدمة والمشكلات البرمجية ---
+  { q: "50. A student writes the following line in Python: result = input(\"Enter a score: \") and then tries to calculate result + 10. The program crashes. What is the most likely cause?", a: "A) input() returns a string, so adding an integer without converting first causes a TypeError." },
+  { q: "51. Python is described as an interpreted language, while C++ is typically compiled. Which statement best describes a key trade-off of Python's interpreted approach?", a: "D) Python runs slower than compiled languages, but provides instant feedback that accelerates learning and development." },
+  { q: "52. You are building a program that stores a student's percentage grade, such as 87.5. Which data type should you use, and why?", a: "B) float, because the value contains a decimal point and requires precision." },
+  { q: "53. In Python, indentation is not just a style preference — it is part of the language's syntax. What happens if indentation is missing or inconsistent inside an if block?", a: "C) Python raises an IndentationError and stops execution." },
+  { q: "54. A developer wants to share a Python notebook with a classmate who has no software installed on their computer. Which environment is the best choice, and what is its primary advantage?", a: "B) Google Colab, because it runs in any browser, requires zero installation, and auto-saves to Google Drive." },
+  { q: "55. Examine this code: print(\"2026\", \"03\", \"30\", sep=\"/\"). What will be printed?", a: "D) 2026/03/30" },
+  { q: "56. A programmer writes: total = 10 / 2. A colleague says the result is an integer 5. Is the colleague correct, and why?", a: "A) No — the / operator always returns a float in Python, so the result is 5.0." },
+  { q: "57. Which of the following variable names violates Python's naming rules and would cause a SyntaxError?", a: "A) 2score = 95" },
+  { q: "58. A Python script includes several lines with # at the start, written in plain English explaining what each section does. A junior developer removes them, saying they slow the program down. Is this decision correct?", a: "A) No — Python completely ignores comments at runtime, so they have zero effect on speed." },
+  { q: "59. A student writes name = \"Python\" and then prints name[1]. They expect the output to be \"P\" because it is the first letter. What is actually printed, and why?", a: "D) \"y\" — string indexing starts at 0, so name[1] refers to the second character." },
+
+  // --- جولة العمليات الحسابية والدوال وحل المشكلات ---
+  { q: "60. What is the result of 10 / 2 in Python?", a: "5.0" },
+  { q: "61. Which operator is used to find the remainder of a division?", a: "%" },
+  { q: "62. What is the output of print(\"Hi\" * 3)?", a: "HiHiHi" },
+  { q: "63. Which escape sequence is used to add a new line in a string?", a: "\\n" },
+  { q: "64. How do you correctly use an f-string to print a variable named \"price\"?", a: "f\"Price is {price}\"" },
+  { q: "65. What data type does the input() function always return?", a: "str" },
+  { q: "66. What is the result of int(7.9) in Python?", a: "7" },
+  { q: "67. Which operator is used to check if two values are equal?", a: "==" },
+  { q: "68. In an \"and\" operation, when is the result True?", a: "If all conditions are True" },
+  { q: "69. What is the standard number of spaces used for indentation in Python?", a: "4 spaces" },
+  { q: "70. Which loop is best used when you know the exact number of items to iterate over?", a: "For Loop" },
+  { q: "71. What is the result of range(5)?", a: "0, 1, 2, 3, 4" },
+  { q: "72. What keyword is used to exit a loop prematurely?", a: "break" },
+  { q: "73. What happens if code under a 'for' loop is NOT indented?", a: "It causes an IndentationError" },
+  { q: "74. Which keyword is used to define a custom reusable block of logic?", a: "def" },
+  { q: "75. What is the difference between Parameters and Arguments?", a: "Parameters are placeholders; Arguments are actual data." },
+  { q: "76. If a function uses ‘print’ instead of ‘return’, what value is sent back to the main program?", a: "None" },
+  { q: "77. In a try/except block, where should you place the code that might crash?", a: "In the try block." },
+  { q: "78. What is ‘Stack Unwinding’?", a: "Python searching backward for a safety net (except block)" },
+  { q: "79. What does the 'DRY' principle stand for?", a: "Don't Repeat Yourself" },
+
+  // --- هياكل البيانات (Data Structures) وهندسة النظم ---
+  { q: "80. Which bracket is used to define a List in Python?", a: "Square Brackets [ ]" },
+  { q: "81. What is the index of the first item in a Python List?", a: "0" },
+  { q: "82. What is the result of [10, 20, 30, 40][1:3]?", a: "[20, 30]" },
+  { q: "83. Which data structure stores information in Key-Value pairs?", a: "Dictionary" },
+  { q: "84. Why is the .get() method safer than using square brackets for Dictionaries?", a: "It prevents a KeyError crash by returning a default value." },
+  { q: "85. What is the main characteristic of a Set?", a: "It only stores unique items and automatically removes duplicates." },
+  { q: "86. Which method is used to get both Keys and Values while looping through a Dictionary?", a: ".items()" },
+  { q: "87. What happens if you modify a List inside a function?", a: "The original list is permanently changed because it's passed by reference." },
+  { q: "88. Which collection would you choose to store a unique list of ‘Banned User IDs’ for fast lookup?", a: "Set" },
+  { q: "89. In System Architecture, what is 'Global State’?", a: "Data that persists throughout the program's lifetime, usually defined outside functions" },
+
+  // --- الذكاء الاصطناعي وعلم البيانات (AI & Data Science Workflow) ---
+  { q: "90. Which approach allows a computer to find its own rules from data?", a: "Machine Learning" },
+  { q: "91. What is the main difference between Generative AI and Classification AI?", a: "Generative AI creates new content, while Classification AI labels existing data" },
+  { q: "92. Which step comes first in the ML lifecycle?", a: "Data Acquisition." },
+  { q: "93. What does .argmax() return?", a: "The index of the maximum value." },
+  { q: "94. Normalization in AI usually involves scaling data to which range?", a: "-1 to 1 (or 0 to 1)." },
+  { q: "95. Why do we use cloud tools like Google Colab for AI?", a: "To run heavy calculations on remote powerful servers" },
+  { q: "96. What defines a ‘Robust’ model?", a: "One that works consistently across different conditions and people." },
+  { q: "97. A 'Deepfake' is an ethical concern primarily related to:", a: "Synthetic media generation" },
+  { q: "98. What is 'Feature Extraction’?", a: "Identifying unique mathematical markers in data" },
+  { q: "99. AI Modalities like CV and NLP aim to simulate:", a: "Human senses and cognitive perception" },
+
+  // --- جولة تحليل البيانات المتقدمة وإدارة البيانات (Data Wrangling & Analysis) ---
+  { q: "100. Netflix invested $100 million in 'House of Cards' without a pilot episode. Why was this considered a data-driven decision rather than a guess?", a: "They analysed viewing patterns, actor preferences, and director engagement of 30 million subscribers to identify a statistically reliable pattern before committing" },
+  { q: "101. A Data Scientist designs a recommendation model. An ML Engineer then takes over. What does the ML Engineer do that the Data Scientist does NOT?", a: "The ML Engineer takes the designed model and deploys it into a live system capable of serving millions of users every day" },
+  { q: "102. Twitter generates approximately 500 million tweets every day. Why does processing this data require a network of computers rather than a single powerful machine?", a: "The volume, speed, and scale of the data exceeds what any single machine can store or process, so the workload must be distributed across many connected nodes" },
+  { q: "103. What would most likely happen if a data scientist built a model (Step 5) immediately after collecting data (Step 2), skipping the Clean Data and Exploration steps?", a: "The model would train on dirty, unexamined data — errors, duplicates, and missing values would distort the learned patterns, producing unreliable predictions." },
+  { q: "104. How does Data Analysis relate to Data Science?", a: "Data Analysis is a specialisation within the broader field of Data Science — it focuses on understanding past data, while Data Science also includes prediction, machine learning, and engineering" },
+  { q: "105. A shoe retailer wants to know which shoe size to stock the most. They have sales records for 1,000 customers. Which measure of centre is most directly useful here, and why?", a: "Mode, because the most frequently purchased size tells the retailer exactly which size to order in the largest quantity" },
+  { q: "106. An analyst needs to process 1.5 million rows of transaction data and run the same analysis automatically every morning. Which tool is most appropriate, and why?", a: "Python, because it handles millions of rows efficiently, supports scheduled automation, and can run the entire pipeline without manual intervention." },
+  { q: "107. After applying =MAX and =MIN to the Science scores column, you get 98 and 22. What does this pair of values tell you that the average alone cannot?", a: "It reveals the full range of performance — the best and worst individual scores — indicating that the class has extremely uneven results that the average masks" },
+  { q: "108. After building the Bar Chart of subject averages, why is it faster to identify the strongest subject visually than by reading the three average numbers in cells?", a: "The brain processes relative bar heights pre-attentively — the tallest bar is identified almost instantly without arithmetic, whereas comparing three numbers still requires mental calculation" },
+  { q: "109. The DS Workflow's ‘Monitor’ step shows that a spam filter's accuracy has been steadily dropping over three months. What does this trigger, and why does it illustrate that the Workflow is a loop rather than a straight line?", a: "Declining accuracy signals that the world has changed and the model no longer fits — the team loops back to ‘Ask a Question’, gathers fresh data, re-cleans, rebuilds, re-evaluates, and redeploys, showing the Workflow is a continuous improvement cycle" },
+
+  // --- جولة جودة وترتيب البيانات (Data Quality & Advanced Wrangling) ---
+  { q: "110. A student finds that her school's competition results were collected on paper, WhatsApp, and a Google Sheet — and nobody can read the combined data. What is the first step of the Data Wrangling pipeline she should start with?", a: "Gather" },
+  { q: "111. Which of the following is NOT one of the three pillars of data quality?", a: "Creativity" },
+  { q: "112. A roster shows 'e='¢', 'Forward', 'FWD', and 'forward' all meaning the same position. A player also appears twice with slightly different name spelling. Which two problem types are present?", a: "Formatting Inconsistency and Duplicate" },
+  { q: "113. An analyst receives a CSV file of player ages. One entry reads 'péiliuod' (Arabic for fifteen) instead of 15. Which problem type is this, and which cleaning step fixes it?", a: "Wrong Data Type — convert to integer" },
+  { q: "114. A data analyst is deciding whether to drop or fill rows with missing phone numbers in a student dataset. She checks what the data will be used for before deciding. This reflects which core principle of data cleaning?", a: "The right fix depends on the intended use of the data" },
+  { q: "115. Which data source type sends continuous real-time updates without the system needing to request them each time?", a: "Live Stream" },
+  { q: "116. The Gather step of the Data Wrangling pipeline is complete. What is the correct next step?", a: "Assess" },
+  { q: "117. Spotify enriches your listening history with genre tags and mood scores before its recommendation engine uses the data. Which pipeline step does this enrichment represent, and what comes after it?", a: "Enrich — then Publish" },
+  { q: "118. A dataset passes the Accuracy and Completeness checks but fails Consistency — the same city appears as ‘Alex’, ‘Alexandria’, and ‘4.iSY1'\". Which cleaning operation addresses the Consistency failure?", a: "Format Standardisation" },
+  { q: "119. Which statement best describes why Data Wrangling matters in real-world systems like food delivery apps and sports associations?", a: "It ensures the data used for decisions is accurate, complete, and consistent" },
+
+  // --- جولة تطوير الويب وبنية طلبات الـ HTTP ---
+  { q: "120. Which of the following correctly traces the step-by-step path of a web request?", a: "Browser Request -> Internet Cables -> Server Processing -> HTTP Response Back to Browser." },
+  { q: "121. A developer wants to build a single text block containing a title that stands out, followed by a sentence. What is the standard structural layout?", a: "Place an <h1> to <h6> heading tag first, followed by a separate <p> paragraph tag." },
+  { q: "122. If you notice that some text on your webpage is running into an incorrect style layout, which nesting pattern should you audit for errors?", a: "<p><strong><mark>Overlapped Code Syntax Element</strong></mark>" },
+  { q: "123. What will happen if an HTML developer forgets to include a closing tag (e.g., leaving a <strong> tag open)?", a: "The text formatting or style layout will break and bleed down into the rest of the page elements." },
+  { q: "124. Which components are absolutely necessary to build a valid, modern, and readable HTML document skeleton?", a: "<!DOCTYPE html> declaration, <html> root wrapper, <head> for metadata, and <body> for viewable content with clean indentation." },
+  { q: "125. When you enter a website URL in the browser, what is the first step that usually happens", a: "The domain name is translated into an IP address using DNS" },
+  { q: "126. Which HTML element is used to define a navigation section in a webpage", a: "nav" },
+  { q: "127. Why is semantic HTML important in web development", a: "It improves accessibility and SEO understanding" },
+  { q: "128. What is the main purpose of an HTTP request in web communication", a: "To send and receive data between browser and server." },
+  { q: "129. What does the browser build first after parsing HTML code", a: "DOM tree" },
+
+  // --- الأسئلة المقالية القصيرة (تم تحويلها لنمط سؤال وجواب مباشر ومثالي للـ Quiz) ---
+  { q: "130. What is Python mainly used for?", a: "AI, Data Analysis, Web Development, Automation." },
+  { q: "131. What is the difference between an Algorithm and a Program?", a: "Algorithm is the plan or steps to solve a problem, while a Program is the actual code that implements those steps." },
+  { q: "132. Which function is used to display output on the screen?", a: "print()" },
+  { q: "133. Which function is used to get input from the user?", a: "input()" },
+  { q: "134. What is the data type of the value 25?", a: "int" },
+  { q: "135. What is the data type of the value 3.14?", a: "float" },
+  { q: "136. What is the data type of \"Python\"?", a: "str" },
+  { q: "137. What is the data type of True?", a: "bool" },
+  { q: "138. What is the result of: 10 % 3", a: "1" },
+  { q: "139. Which operator is used for exponentiation (power)?", a: "**" },
+  { q: "140. What is the difference between = and == in Python?", a: "= is to Assign a value; == is to Compare two values." },
+  { q: "141. What will be the result of: 5 > 3", a: "True" },
+  { q: "142. When do we use 'and' operator?", a: "When all conditions must be True." },
+  { q: "143. When do we use 'or' operator?", a: "When at least one condition must be True." },
+  { q: "144. What does 'not' do?", a: "It reverses the logical value (True -> False)." },
+  { q: "145. What is the purpose of an if statement?", a: "To make decisions based on conditions." },
+  { q: "146. What is the difference between a for loop and a while loop?", a: "for: Used when the number of repetitions is known. while: Used when repetition depends on a condition." },
+  { q: "147. Why do we use Functions?", a: "To organize code, avoid repetition, and make programs easier to maintain." },
+  { q: "148. Which data structure stores multiple items in order?", a: "List" },
+  { q: "149. What is the main difference between a List and a Set?", a: "List allows duplicate values; Set does not allow duplicate values." },
+  { q: "150. What will be the output of this code?\nage = 16\nif age >= 15 and age < 18:\n  print(\"Teen\")\nelse:\n  print(\"Adult\")", a: "Teen" }
+];
+
+    const qaList = document.getElementById('qaList');
+    const searchInput = document.getElementById('searchInput');
+    const noResults = document.getElementById('noResults');
+
+    function displayData(query = '') {
+        qaList.innerHTML = '';
+        const filtered = qaData.filter(item => 
+            item.q.toLowerCase().includes(query.toLowerCase()) || 
+            item.a.toLowerCase().includes(query.toLowerCase())
+        );
+
+        if (filtered.length === 0) {
+            noResults.style.display = 'block';
+        } else {
+            noResults.style.display = 'none';
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <span class="q-text">${highlight(item.q, query)}</span>
+                    <div class="a-text">${highlight(item.a, query)}</div>
+                `;
+                qaList.appendChild(card);
+            });
+        }
+    }
+
+    function highlight(text, query) {
+        if (!query) return text;
+        const regex = new RegExp(`(${query})`, 'gi');
+        return text.replace(regex, `<span class="highlight">$1</span>`);
+    }
+
+    searchInput.addEventListener('input', (e) => {
+        displayData(e.target.value);
+    });
+
+    // Initial render
+    displayData();
+</script>
+
+</body>
+</html>
