@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>حاسبة الاستثمار المتكاملة</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --primary: #6c7fe7; --bg: #303971; --glass: rgba(255, 255, 255, 0.1); }
+        body { font-family: 'Segoe UI', sans-serif; background: #decce3; padding: 20px; display: flex; justify-content: center; }
+        .main-container { background: white; padding: 30px; border-radius: 30px; max-width: 900px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        
+        /* تصميم المدخلات العصري */
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: #303971; }
+        input, select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ddd; background: #f9f9f9; }
+        
+        /* كارت النتائج */
+        .result-box { background: linear-gradient(135deg, var(--bg), #4a569d); color: white; padding: 25px; border-radius: 20px; text-align: center; transition: 0.3s; }
+        .result-val { font-size: 2rem; font-weight: bold; color: #9dddb4; margin-top: 10px; }
+        .footer     
+        canvas { margin-top: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <h2 style="text-align: center; color: #303971;">لوحة التحكم المالية</h2>
+    <div class="grid">
+        <div>
+            <div class="input-group">
+                <label>المبلغ الأسبوعي (الادخار):</label>
+                <input type="number" id="weekly" value="20" oninput="updateAll()">
+            </div>
+            <div class="input-group">
+                <label>عدد الأسابيع:</label>
+                <input type="number" id="weeks" value="50" oninput="updateAll()">
+            </div>
+            <div class="input-group">
+                <label>زيادة الإيرادات الشهرية:</label>
+                <input type="number" id="revenue" value="5000" oninput="updateAll()">
+            </div>
+            <div class="input-group">
+                <label>المدة (سنوات): <span id="yearVal">1</span></label>
+                <input type="range" id="years" min="1" max="5" value="1" oninput="updateAll()">
+            </div>
+            <div class="input-group">
+                <label>العملة:</label>
+                <select id="currency" onchange="updateAll()">
+                    <option value="USD">دولار ($)</option>
+                    <option value="EGP">جنيه (ج.م)</option>
+                    <option value="EUR">يورو (€)</option>
+                </select>
+            </div>
+        </div>
+
+        <div>
+            <div class="result-box" id="resultCard">
+                <h3>إجمالي العائد التقديري</h3>
+                <div class="result-val" id="total">0</div>
+            </div>
+            <canvas id="roiChart"></canvas>
+        </div>
+    </div>
+    <footer class="footer">تم التصميم بواسطة عمر تامر</footer>
+</div>
+
+
+<script>
+    let myChart;
+    const symbols = { USD: '$', EGP: 'ج.م', EUR: '€' };
+
+    function updateAll() {
+        // 1. حسابات الادخار الأسبوعي
+        let w = parseFloat(document.getElementById('weekly').value) || 0;
+        let c = parseFloat(document.getElementById('weeks').value) || 0;
+        
+        // 2. حسابات العائد والاستثمار
+        let revenue = parseFloat(document.getElementById('revenue').value) || 0;
+        let years = parseInt(document.getElementById('years').value);
+        let curr = document.getElementById('currency').value;
+        
+        document.getElementById('yearVal').innerText = years;
+        
+        let total = (w * c) + (revenue * 12 * years);
+
+        // 3. تحديث العرض
+        let display = document.getElementById('total');
+        display.innerText = total.toLocaleString() + " " + symbols[curr];
+        
+        // تأثير نبض خفيف
+        document.getElementById('resultCard').style.transform = "scale(1.02)";
+        setTimeout(() => document.getElementById('resultCard').style.transform = "scale(1)", 200);
+
+        // 4. تحديث الرسم البياني
+        updateChart(total, years);
+    }
+
+    function updateChart(total, years) {
+        const ctx = document.getElementById('roiChart').getContext('2d');
+        if (myChart) myChart.destroy();
+
+        myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: years}, (_, i) => `${i+1} سنة`),
+                datasets: [{
+                    label: 'نمو رأس المال',
+                    data: Array.from({length: years}, (_, i) => (total / years) * (i + 1)),
+                    borderColor: '#6c7fe7',
+                    backgroundColor: 'rgba(108, 127, 231, 0.2)',
+                    fill: true
+                }]
+            }
+        });
+    }
+
+    updateAll();
+</script>
+</body>
+</html>
