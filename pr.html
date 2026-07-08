@@ -5,13 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>عمر تامر محمد عادل</title>
     
-    <!-- استدعاء خط Cairo الاحترافي من Google Fonts -->
+    <!-- ========================================== -->
+    <!-- إعدادات محركات البحث (SEO) لـ Google -->
+    <!-- ========================================== -->
+    <meta name="description" content="الموقع الرسمي للمبرمج عمر تامر محمد. اكتشف أحدث الحلول البرمجية والمشاريع المبتكرة، وابدأ رحلتك في عالم التكنولوجيا معنا.">
+    <meta name="keywords" content="عمر تامر, المبرمج عمر تامر, برمجة, تطوير ويب, تصميم مواقع, Omar Tamer, حلول برمجية">
+    <meta name="author" content="عمر تامر محمد عادل">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://omarstor.online/">
+    <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE_HERE">
+
+    <!-- ========================================== -->
+    <!-- أيقونات الموقع (Favicons) -->
+    <!-- ========================================== -->
+    <link rel="icon" href="https://omarstor.online/696.png" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://omarstor.online/696.png">
+
+    <!-- ========================================== -->
+    <!-- إعدادات المشاركة على السوشيال ميديا (Open Graph & Twitter) -->
+    <!-- ========================================== -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://omarstor.online/">
+    <meta property="og:title" content="المبرمج عمر تامر محمد | الصفحة الرئيسية">
+    <meta property="og:description" content="الموقع الرسمي للمبرمج عمر تامر محمد. اكتشف أحدث الحلول البرمجية والمشاريع المبتكرة.">
+    <meta property="og:image" content="https://omarstor.online/696.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="المبرمج عمر تامر محمد | الصفحة الرئيسية">
+    <meta name="twitter:description" content="الموقع الرسمي للمبرمج عمر تامر محمد. اكتشف أحدث الحلول البرمجية والمشاريع المبتكرة.">
+    <meta name="twitter:image" content="https://omarstor.online/696.png">
+
+    <!-- ========================================== -->
+    <!-- استدعاءات الخطوط والتصميم (Tailwind & Fonts) -->
+    <!-- ========================================== -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
-    
-    <!-- استدعاء Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- إعداد خط Tailwind ليستخدم خط Cairo -->
     <script>
         tailwind.config = {
             theme: {
@@ -38,6 +65,19 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-slate-800 to-black text-white flex flex-col min-h-screen font-sans bg-animate">
+
+    <!-- شريط التنقل العلوي (Navbar) -->
+    <header class="w-full backdrop-blur-md bg-white/5 border-b border-white/10 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <!-- الشعار / الاسم -->
+            <a href="https://omarstor.online/" class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">
+                عمر تامر
+            </a>
+            
+            <!-- روابط الصفحات -->
+           
+        </div>
+    </header>
 
     <!-- المحتوى الرئيسي -->
     <main class="flex-grow flex flex-col items-center justify-center p-4">
@@ -74,15 +114,19 @@
     </main>
 
     <!-- الفوتر -->
-    <footer class="border-t border-white/10 bg-black/40 backdrop-blur-md text-gray-400 text-center py-6 mt-auto">
-        <p class="text-sm md:text-base font-medium tracking-wide">جميع الحقوق محفوظة &copy; 2026 - المبرمج عمر تامر</p>
+    <footer class="border-t border-white/10 bg-black/40 backdrop-blur-md text-gray-400 py-6 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-sm md:text-base font-medium tracking-wide">جميع الحقوق محفوظة &copy; 2026 - المبرمج عمر تامر</p>
+            
+            <!-- روابط الفوتر -->
+       
+        </div>
     </footer>
 
     <!-- السكريبت -->
     <script>
         // الاستماع لحدث الضغط على الزر لتوجيه المستخدم
         document.getElementById('startBtn').addEventListener('click', function() {
-            // تأثير تأخير بسيط قبل الانتقال لإعطاء شعور بالنعومة
             this.style.transform = "scale(0.95)";
             setTimeout(() => {
                 window.location.href = 'https://omarstor.online/';
